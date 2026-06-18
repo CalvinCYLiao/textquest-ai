@@ -195,6 +195,11 @@ window.StudentModule = {
                 const tab = btn.getAttribute('data-tab');
                 document.querySelectorAll('.student-binder-panel .tab-content').forEach(tc => tc.classList.remove('active'));
                 document.getElementById(`tab-content-${tab}`).classList.add('active');
+
+                // Auto-initialize when clicking the tab directly to avoid blank screens
+                if (tab === 'synthesis') {
+                    this.openSynthesisPanel();
+                }
             });
         });
 
