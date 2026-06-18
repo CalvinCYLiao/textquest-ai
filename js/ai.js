@@ -3,6 +3,96 @@
  * Manages both real client-side API integration (Gemini/OpenAI) and highly-polished offline simulations.
  */
 
+const OFFLINE_RESPONSES = {
+    // 1. Riverwater
+    npc_farmer: {
+        zh: "唉...溪水的事我真的不知道該怎麼說。以前可不是這樣的，那時候溪水好清亮啊...如果你對以前的溪水有興趣，可以多問問我以前的農作跟河水情況。但關於工廠的具體法規或排汙數據，我這個粗人真的不懂，你也許該去問問工廠的負責人，或者那些在河邊檢測的少年環保志工...",
+        en: "Sigh... I don't know what to say about the dry river. It was never like this in the past. If you are curious about how the river was before, ask me about my old diaries or the water back then. But as for the factory's regulation codes or emission counts, I am just an old farmer. You might want to go speak to the manager at the factory gates, or that college volunteer who tests the water..."
+    },
+    npc_manager: {
+        zh: "您好，關於我們公司的運作，我們都是百分之百依法合規的。地方的繁榮是大家共同的期望，我們每個月也都有提供村民就業機會。至於缺水問題，您應該多去參考官方氣象局近年發布的梅雨季節氣候變遷數據。如果您要問我們公司排放廢水的問題，我可以向您出示我們的官方綠色合規手冊證明...",
+        en: "Hello. Regarding our operations, we are 100% compliant with local regulations. Local prosperity is our mutual goal, and we provide steady employment for villagers. As for water shortage, you should look at the climate agency's official meteorological data regarding recent severe droughts. If you want to ask about our environmental compliance, I can show you our official handbook..."
+    },
+    npc_volunteer: {
+        zh: "嗨！我是環境志工雨婷。我正在採集河水標本。這條河這幾年的生態劣化速度超乎想像！但我講話是要憑證據的，我有一張水質檢測數據表，但你得問我一些關於水質檢測、藻類優養化或具體導電度數據的問題，我才能把這張科學數據表交給你！",
+        en: "Hi there! I am Yu-Ting, the ecology volunteer. I am taking water samples. The ecological deterioration here over the past years is frightening! But I must base my statements on solid science. I have a water quality data report, but you need to ask me about chemical testing, algae, or conductive metrics before I can show it to you!"
+    },
+    npc_reporter: {
+        zh: "你好，我是記者阿哲。我正在核實綠溪河流量急劇萎縮的專題報導。我的手頭有一份非常有說服力的氣象對比圖表，但基於新聞倫理，我必須先看到有價值的其他證據——例如，你有沒有拿到村民阿土伯的日記實證？或者工廠高經理發布的官方氣候旱災手冊？你要在提問中提到這些關鍵證詞，我才能把我這張氣象與流量流量對比表對照表秀給你。",
+        en: "Hello, A-Che here, investigative journalist. I am fact-checking the bizarre runoff shrinkage of Green Creek. I have a highly compelling rainfall vs flow comparison chart. But for news integrity, I need to know if you've gathered other viewpoints—like Uncle Tu's agricultural diaries or Manager Kao's official climate explanation? Reference those in your prompt and I'll open my meteorological files."
+    },
+
+    // 2. Soil Pollution
+    npc_chang: {
+        zh: "唉，自從鑫源工廠開工以後，這塊田裡的土質越來越奇怪了，水井的水用起來也怪怪的。小調查員，如果你問我關於『水井』的顏色變化、『氣味』或『作物』枯萎的細節，我才敢把我平時做的小筆記紀錄拿給你看看，不然我怕工廠找我麻煩啊...",
+        en: "Sigh, since the factory started, the soil has become weird, and the well water feels off. If you ask me about the well water color, pungent smells, or how the crops withered, I will share my diary records with you."
+    },
+    npc_lee: {
+        zh: "我們廠所有的加工製程都通過環保署審核，重金屬廢水在中和沉澱後才會排放，絕對不可能有洩漏的事情。我們有專業的中和檢測單據！如果您想看的話，請詳細問我關於『廢水』的處理方式、我們的『合格』證書或者是否『符合標準』，我才能拿給您看。",
+        en: "All factory processes are verified by inspectors. Wastewater is neutralized and heavy metals precipitated before disposal. We have certified neutralization papers. Ask me about wastewater treatment, certificates, or regulatory standards to see them."
+    },
+    npc_chen: {
+        zh: "我是農業改良場的陳博士。我們對南側受損農田進行了多點土樣採集與光譜分析，獲得了具體的重金屬數據。如果你對我們的『化驗』結果、哪種重金屬『超標』（如鎘）、或者是實驗室的『數據』分析感興趣，請直接向我提問，我會為您解讀化驗報告。",
+        en: "I am Dr. Chen from the Agricultural Improvement Station. We took core soil samples and analyzed them. If you want to know about our spectrometer test results, which heavy metals are above limits (such as Cadmium), or the laboratory data, please ask."
+    },
+
+    // 3. Fake News
+    npc_granny: {
+        zh: "哎呀，小調查員，我跟你說！這張貼圖是我們老同學群組裡大家都在轉傳的，說吃這些菜會中毒，好恐怖啊！如果你問我關於『轉傳』的過程、這個『群組』的成員、或者是哪些『蔬菜』有毒的來源，我才能翻出群組裡的對話記錄和貼圖給你看。",
+        en: "Oh my, young investigator! This picture has been forwarded everywhere in my classmate chat groups. It says eating these greens is toxic! Ask me about the forwarded messages, the chat group, or the toxic vegetables, and I will show you the screenshot."
+    },
+    npc_farmer_lin: {
+        zh: "這篇網路謠言害慘了我們在地菜農！我們的蔬菜在出貨前都有送去農會進行嚴格檢測，報告全部合格！如果你想看我們農產的農藥殘留『檢驗』單，請詢問我有關蔬菜檢驗、『合格』標準或『農會』報告的問題，我一定拿出來證明我們的清白！",
+        en: "This rumor is ruining our lives! All our vegetables undergo pesticide testing at the Farmers Association and are safe. If you ask me about the pesticide tests, safety certificates, or the Farmers Association report, I'll happily show it to you!"
+    },
+    npc_officer: {
+        zh: "我是食品藥物管理局的曾專員。我們已經啟動了毒物監測與就醫紀錄比對。如果你問我關於食物中毒的『監測』數據、衛生署的『官方』通報、或者是如何判定這是一個網路『謠言』，我會向您出示我們的毒物監測登記手冊。",
+        en: "I am Specialist Tseng from the Food and Drug Administration. We have cross-checked the poison registries and clinic admission records. Ask me about our official surveillance monitoring, medical registries, or the rumor origin, and I will pull up the files."
+    },
+
+    // 4. Bullying
+    npc_victim_friend: {
+        zh: "小美最近都躲在廁所哭，聯絡簿上也寫得很消極...我真的很擔心她。她之前有在私訊裡跟我求助。如果你想看我和她之間的私聊『截圖』，請問我關於小美遭到『排擠』、她怎麼跟我『聊天』，或她如何『求助』的，我就拿給你看，但千萬別跟班上其他人說是我給的...",
+        en: "Xiao-Mei has been crying in the restroom, and her logs look depressed. She reached out to me in private messages. If you ask me about her being excluded, our chat messages, or how she asked for help, I will show you the screenshot."
+    },
+    npc_leader: {
+        zh: "身為班長，我很努力維持班上的秩序。我們每週的班會常規紀錄簿上都有詳細記載。如果你詢問我有關班級的『秩序』狀況、每週的『班會』討論，或者是霸凌『回報』的登記流程，我就能把班會常規紀錄單與回報單給您查閱。",
+        en: "As class leader, I work hard to maintain classroom discipline. Our weekly meeting journals document student conduct. Ask me about classroom order, weekly class meetings, or the bullying incident reports to review the official logs."
+    },
+    npc_counselor: {
+        zh: "我是溫老師。在輔導過程中，我們常觀察到同儕壓力和集體沉默現象。如果你想了解我們針對本案所做的『旁觀者』效應評估、同學面臨的同儕『壓力』，或者我們輔導室採取的『心理』諮商報告，請向我提問，我會提供評估表為你解說。",
+        en: "I am counselor Ms. Wen. Peer pressure and bystander silence are common in school relationship conflicts. If you ask me about the bystander effect, peer pressure dynamics, or our psychological evaluation forms, I will share the assessment sheet with you."
+    },
+
+    // 5. Wetland Energy
+    npc_fisherman: {
+        zh: "阿彌陀佛，自從海灘蓋了那一整排發電板，海水的溫度好像變高了，烏魚和文蛤都漸漸抓不到了。如果你問我關於『漁獲』量下滑的細節、『水溫』監測的數據，或者我們老『漁民』這幾年的觀察，我才能把這張捕撈紀錄表拿給你看。",
+        en: "Bless you. Ever since those solar panel fields were installed, water temperatures seem to have risen, and mullet catches are dropping. Ask me about fishery catches, temperature observations, or our local fishermen logs to see the records."
+    },
+    npc_developer: {
+        zh: "我們公司的光電專案是推動國家能源轉型的重要建設，而且採用了最先進的生態友善設計。我們有簽署承諾書！如果您想看這份承諾書，請詢問我關於『光電』板的發電規劃、我們的生態『友善』設計，或者我們承諾給地方漁民的補償與『回饋』機制。",
+        en: "Our solar project supports national carbon reduction goals using ecological materials. We signed an environmental pledge. Ask me about our solar panels, eco-friendly structures, or local economic feedback programs to read the pledge."
+    },
+    npc_ecologist: {
+        zh: "我是許博士。我們團隊這兩年在此濕地對黑面琵鷺的棲息範圍與覓食次數進行了詳細觀測。如果您問我關於黑面琵鷺『棲地』受干擾的狀況、候鳥的數量『調查』，或者是施工『干擾』的空間對比分析，我會向您展示我們的生態干擾調查報告。",
+        en: "I am Dr. Hsu, ecologist. We monitored the wintering zones and foraging behaviors of the Black-faced Spoonbill. Ask me about habitat fragmentation, migratory bird surveys, or construction interference maps to review our ecological report."
+    },
+
+    // 6. AI Academic Ethics
+    npc_student_ai: {
+        zh: "我發誓，這篇期末報告絕大部分都是我自己寫的！我只是用 AI 幫我潤飾和擴寫大綱而已。我有保留我跟 AI 對話的所有歷程。如果您問我關於『提詞』的具體設計、我和 AI 『問答』的過程，或者是我的寫作『歷程』，我可以把我的 ChatGPT 對話對答記錄秀給您看！",
+        en: "I swear I wrote this essay myself! I only used AI for outlining and grammar polishing. I kept all my prompt logs. If you ask me about my prompt engineering, my Q&A dialogs, or my drafting process, I will show you my ChatGPT prompt history log."
+    },
+    npc_professor: {
+        zh: "我們系上對於學術誠信的要求非常嚴格，並且制訂了明確的 AI 使用規範。如果同學是適度輔助是可以的，但抄襲絕對零容忍。如果您想了解我們的『學倫』審查準則、AI 輔助的判定『規則』，或是『系上』的指導方針手冊，請直接對我提問。",
+        en: "Our department maintains high standards of academic honesty and has detailed generative AI guidelines. If you ask me about academic integrity codes, AI grading rules, or department policies, I will show you the official policy guidelines."
+    },
+    npc_expert_ai: {
+        zh: "我是資訊學院的曾博士。我們使用多種深度學習模型來檢測文字特徵，能夠分析出文本中 AI 的生成機率。如果您問我關於文字『特徵』分析、模型判定的『生成率』數據，或者是檢測『軟體』的運作原理，我會為您出示我們的檢測比對報告表。",
+        en: "I am Dr. Tseng from the Computer Science Department. We analyzed the text features using linguistic models. If you ask me about writing style fingerprints, AI generation probability metrics, or the detection detector software, I will present the detection report."
+    }
+};
+
 window.AIModule = {
     // 1. Connection Tester
     async testConnection(geminiKey, openaiKey, model) {
@@ -278,74 +368,13 @@ ${sourceText}`;
         };
     },
 
-    _runHeuristicStoryworld(text, template) {
-        const sentences = window.parseSourceTextToSentences(text);
-        
-        // Parse sentences to extract basic keyword labels
-        const p1 = sentences[0] ? sentences[0].text.substring(0, 15) + "..." : "調查起點";
-        const p2 = sentences[1] ? sentences[1].text.substring(0, 15) + "..." : "對立立場";
-        const p3 = sentences[sentences.length - 1] ? sentences[sentences.length - 1].text.substring(0, 15) + "..." : "科學驗證";
-
-        return {
-            locations: [
-                { id: "loc_1", name: "事件現場 (Main Site)", icon: "📍", desc: "衝突爆發的第一現場，遺留了諸多線索。" },
-                { id: "loc_2", name: "關係人處所 (Stakeholder)", icon: "🏢", desc: "核心當事人所在的辦公室，氛圍有些嚴肅。" },
-                { id: "loc_3", name: "研究調查室 (Inquiry Lab)", icon: "🔬", desc: "科學分析或資料比對的地方，能獲得客觀數據。" }
-            ],
-            npcs: [
-                {
-                    id: "npc_witness",
-                    locationId: "loc_1",
-                    name: "當事人 老張 (Witness)",
-                    avatar: "👴",
-                    roleBadge: "現場第一目擊者",
-                    description: "親身經歷事件的老村民，對變遷深感痛心。",
-                    voice: "語氣激動，常提到自己的親身體驗，帶有主觀色彩。",
-                    boundary: `只了解第一手的生活變遷與直觀感受：${p1}。不知道背後的科學原理與管理決策。`,
-                    clueName: "老張的生活觀察筆記",
-                    clueText: `「我親眼看到近年情況變糟，特別是在特定時間段，周遭環境變化極大：${p1}」`,
-                    rule: "提問必須提到「以前」、「環境」或「改變」。",
-                    evidences: ["1"]
-                },
-                {
-                    id: "npc_opponent",
-                    locationId: "loc_2",
-                    name: "負責人 趙經理 (Manager)",
-                    avatar: "💼",
-                    roleBadge: "利益關係代表人",
-                    description: "極力撇清責任的主管，強調法規合規性與經濟貢獻。",
-                    voice: "理智而防衛，說話像念公文，常拋出數據。",
-                    boundary: `只強調法規合規與正面數據：${p2}。迴避具體責任或夜間細節。`,
-                    clueName: "官方合規聲明手冊",
-                    clueText: `「我們一切運作皆符合國家級法規安全標準：${p2}。乾涸純屬不可抗力的氣候因素。」`,
-                    rule: "提問必須提到「責任」、「法規」或「問題」。",
-                    evidences: ["2"]
-                },
-                {
-                    id: "npc_expert",
-                    locationId: "loc_3",
-                    name: "林博士 (Dr. Lin)",
-                    avatar: "👩",
-                    roleBadge: "中立科學專家",
-                    description: "手持客觀數據的專業學者，追求科學真理。",
-                    voice: "理智、客觀，說話精確，喜歡提供定量對比。",
-                    boundary: `只提供客觀監測數據與系統對照：${p3}。不作主觀的道德批判。`,
-                    clueName: "中立科學監測數據",
-                    clueText: `「根據系統定量監測，雖然環境背景值有變動，但近年流量萎縮與排汙指數之不尋常落差極大：${p3}」`,
-                    rule: "提問必須提到「數據」、「證據」或「研究」。",
-                    evidences: ["3"]
-                }
-            ]
-        };
-    },
-
     _checkRuleFulfillment(npc, question) {
         const q = question.toLowerCase();
         
         // Fallback checks for key strings in Chinese/English
         let keywords = [];
         
-        if (npc.id.includes('farmer')) {
+        if (npc.id.includes('farmer') && !npc.id.includes('farmer_lin')) {
             keywords = ['以前', '以前水量', '灌溉', '農作物', '水質', '阿土伯', '農作', 'past', 'history', 'crops'];
         } else if (npc.id.includes('manager')) {
             keywords = ['排汙', '廢水', '沒水的原因', '沒水', '就業', '工作', '污染', 'pollution', 'waste', 'jobs'];
@@ -355,8 +384,9 @@ ${sourceText}`;
             keywords = ['阿土伯', '日記', '工廠說明', '降雨', '流量', '對照', 'rain', 'flow', 'climate'];
         } else {
             // General rule splitting
-            const ruleText = npc.rule ? npc.rule.replace(/[「」『』提問必須包含]/g, '') : '';
-            keywords = ruleText.split(/[、，or且,]/).map(k => k.trim()).filter(k => k.length > 0);
+            const ruleText = npc.rule_zh || npc.rule || '';
+            const cleanRule = ruleText.replace(/[「」『』提問必須包含且或、，]/g, ' ');
+            keywords = cleanRule.split(/\s+/).map(k => k.trim()).filter(k => k.length > 0);
         }
 
         return keywords.some(kw => q.includes(kw.toLowerCase()));
@@ -377,28 +407,15 @@ ${sourceText}`;
         } else {
             // Generate in-character pedagogical scaffolding (withholding answers)
             let reply = "";
+            const npcId = npc.id;
             
-            if (npc.id.includes('farmer')) {
-                reply = isZh ? 
-                    "唉...溪水的事我真的不知道該怎麼說。以前可不是這樣的，那時候溪水好清亮啊...如果你對以前的溪水有興趣，可以多問問我以前的農作跟河水情況。但關於工廠的具體法規或排汙數據，我這個粗人真的不懂，你也許該去問問工廠的負責人，或者那些在河邊檢測的少年環保志工..." :
-                    "Sigh... I don't know what to say about the dry river. It was never like this in the past. If you are curious about how the river was before, ask me about my old diaries or the water back then. But as for the factory's regulation codes or emission counts, I am just an old farmer. You might want to go speak to the manager at the factory gates, or that college volunteer who tests the water...";
-            } else if (npc.id.includes('manager')) {
-                reply = isZh ? 
-                    "您好，關於我們公司的運作，我們都是百分之百依法合規的。地方的繁榮是大家共同的期望，我們每個月也都有提供村民就業機會。至於缺水問題，您應該多去參考官方氣象局近年發布的梅雨季節氣候變遷數據。如果您要問我們公司排放廢水的問題，我可以向您出示我們的官方綠色合規手冊證明..." :
-                    "Hello. Regarding our operations, we are 100% compliant with local regulations. Local prosperity is our mutual goal, and we provide steady employment for villagers. As for water shortage, you should look at the climate agency's official meteorological data regarding recent severe droughts. If you want to ask about our environmental compliance, I can show you our official handbook...";
-            } else if (npc.id.includes('volunteer')) {
-                reply = isZh ? 
-                    "嗨！我是環境志工雨婷。我正在採集河水標本。這條河這幾年的生態劣化速度超乎想像！但我講話是要憑證據的，我有一張水質檢測數據表，但你得問我一些關於水質檢測、藻類優養化或具體導電度數據的問題，我才能把這張科學數據表交給你！" :
-                    "Hi there! I am Yu-Ting, the ecology volunteer. I am taking water samples. The ecological deterioration here over the past years is frightening! But I must base my statements on solid science. I have a water quality data report, but you need to ask me about chemical testing, algae, or conductive metrics before I can show it to you!";
-            } else if (npc.id.includes('reporter')) {
-                reply = isZh ? 
-                    "你好，我是記者阿哲。我正在核實綠溪河流量急劇萎縮的專題報導。我的手頭有一份非常有說服力的氣象對比圖表，但基於新聞倫理，我必須先看到有價值的其他證據——例如，你有沒有拿到村民阿土伯的日記實證？或者工廠高經理發布的官方氣候旱災手冊？你要在提問中提到這些關鍵證詞，我才能把我這張氣象與流量流量對比表對照表秀給你。" :
-                    "Hello, A-Che here, investigative journalist. I am fact-checking the bizarre runoff shrinkage of Green Creek. I have a highly compelling rainfall vs flow comparison chart. But for news integrity, I need to know if you've gathered other viewpoints—like Uncle Tu's agricultural diaries or Manager Kao's official climate explanation? Reference those in your prompt and I'll open my meteorological files.";
+            if (OFFLINE_RESPONSES[npcId]) {
+                reply = isZh ? OFFLINE_RESPONSES[npcId].zh : OFFLINE_RESPONSES[npcId].en;
             } else {
                 // Heuristic generic scaffolding response
                 reply = isZh ?
-                    `我是 ${npc.name}。關於這個案子，我了解有限。在我的知識邊界內，我主要關注特定的領域。你需要提問提及「${npc.rule ? npc.rule.substring(0, 10) : '關鍵字'}」我才能把關鍵線索跟你分享。建議你也去其他地點找找線索。` :
-                    `I am ${npc.name}. My expertise is highly bounded. I can only share my specialized clue if you ask me about concepts related to "${npc.rule || 'its core criteria'}". Try traveling to other locations to build your base knowledge first!`;
+                    `我是 ${npc.name}。關於這個案子，我了解有限。在我的知識邊界內，我主要關注特定的領域。你需要提問提及「${npc.rule_zh || npc.rule || '關鍵字'}」我才能把關鍵線索跟你分享。建議你也去其他地點找找線索。` :
+                    `I am ${npc.name}. My expertise is highly bounded. I can only share my specialized clue if you ask me about concepts related to "${npc.rule_en || npc.rule || 'its core criteria'}". Try traveling to other locations to build your base knowledge first!`;
             }
             return { text: reply, ruleFulfill: false };
         }

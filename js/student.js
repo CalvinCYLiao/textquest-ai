@@ -981,13 +981,7 @@ window.StudentModule = {
 
         // 9. Auto generate AI Grading critique feedback!
         const score = Math.min(100, Math.round(50 + (TextQuest.student.collectedClueIds.length * 10) + (TextQuest.student.evidenceLinks.length * 10)));
-        let aiCritique = "";
-        
-        if (isZh) {
-            aiCritique = `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！你順利完成了綠溪村水資源危機的調查！你成功與多位關鍵角色深入對話，收集了 ${TextQuest.student.collectedClueIds.length} 個關鍵線索，並建立了 ${TextQuest.student.evidenceLinks.length} 個與文本段落的證據連結。在你的報告中，你精準呈現了多視角的衝突，將「氣候變遷降雨減少」與「人為取水超抽」進行了數據上的對比，極富說服力！\n\n建議：未來在面對像工廠代表的說詞時，可以再進一步質疑其合規手冊的實質落實度，這能讓你的報告更具備批判性思考！`;
-        } else {
-            aiCritique = `【Inquiry Evaluation Report - Score: ${score}/100】\nBravo! You have compiled a solid investigation. By linking ${TextQuest.student.collectedClueIds.length} clues and establishing ${TextQuest.student.evidenceLinks.length} grounding bonds, your report provides a high-level contrast between corporate claims and community observations. Excellent data citation!\n\nCritique Suggestion: To improve critical thinking, challenge Manager Kao's compliance statements more directly by raising potential inspection gaps.`;
-        }
+        const aiCritique = this.getActivityCritique(TextQuest.activity.id, score, isZh);
         document.getElementById('success-ai-feedback').innerHTML = aiCritique.replace(/\n/g, '<br>');
 
         // Push live student playtest data into Analytics Dashboard dynamically!
@@ -1028,5 +1022,52 @@ window.StudentModule = {
                 tracker.appendChild(line);
             }
         });
+    },
+
+    getActivityCritique(activityId, score, isZh) {
+        const title = TextQuest.activity.title;
+        const colCount = TextQuest.student.collectedClueIds.length;
+        const linkCount = TextQuest.student.evidenceLinks.length;
+
+        if (activityId === 'activity_riverbank') {
+            return isZh ?
+                `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！你順利完成了《${title}》的調查！您成功與多位關鍵角色深入對話，收集了 ${colCount} 個關鍵線索，並建立了 ${linkCount} 個與文本段落的證據連結。在您的報告中，您精準呈現了多視角的衝突，將「氣候變遷降雨減少」與「人為取水超抽」進行了數據上的對比，極富說服力！\n\n建議：未來在面對像工廠代表的說詞時，可以再進一步質疑其合規手冊的實質落實度，這能讓你的報告更具備批判性思考！` :
+                `【Inquiry Evaluation Report - Score: ${score}/100】\nBravo! You have compiled a solid investigation on "${title}". By linking ${colCount} clues and establishing ${linkCount} grounding bonds, your report provides a high-level contrast between corporate claims and community observations. Excellent data citation!\n\nCritique Suggestion: To improve critical thinking, challenge Manager Kao's compliance statements more directly by raising potential inspection gaps.`;
+        }
+        
+        if (activityId === 'activity_soil') {
+            return isZh ?
+                `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！你順利完成了《${title}》的調查！您成功訪談了農民與環保專家，收集了 ${colCount} 個重要線索，並建立了 ${linkCount} 個證據連結。您的報告成功指出了「電鍍廠重金屬鎘洩漏」與「土壤中和證明書虛報」之間的直接關聯，證據推論鏈非常扎實！\n\n建議：在未來研究中，可以進一步探討土壤鎘污染對周邊生態鏈（例如農作物吸收與地下水滲透）的長期累積效應。` :
+                `【Inquiry Evaluation Report - Score: ${score}/100】\nExcellent work on your "${title}" report! You successfully collected ${colCount} clues and mapped ${linkCount} evidence links. You clearly connected the electroplating factory's heavy metal (Cd) leakage with the discrepancy in soil neutralization certificates.\n\nCritique Suggestion: For future inquiries, consider outlining the long-term biological accumulation of Cadmium in the local food chain and aquifer.`;
+        }
+
+        if (activityId === 'activity_fake_news') {
+            return isZh ?
+                `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！你順利完成了《${title}》的調查！您收集了 ${colCount} 個關於假新聞傳播的線索，並對齊了 ${linkCount} 個課文證據。您成功拆解了該謠言從機器人帳號擴散到在地農產社群的路徑，並引用了疾病管制署（CDC）的健康登記冊進行闢謠。\n\n建議：建議在報告中加入針對「高齡長者社交圈」與「演算法過濾泡泡」的防範措施，以提升數位公民素養的實踐深度。` :
+                `【Inquiry Evaluation Report - Score: ${score}/100】\nSuperb analysis in "${title}"! You collected ${colCount} media clues and created ${linkCount} evidence bonds. You correctly mapped how automated bots amplified farm rumors, and successfully used CDC health registries as reliable counter-evidence.\n\nCritique Suggestion: To strengthen your recommendations, propose specific digital literacy interventions targeting vulnerable senior networks and algorithmic echo chambers.`;
+        }
+
+        if (activityId === 'activity_bullying') {
+            return isZh ?
+                `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！你順利完成了《${title}》的調查！您深入訪談了輔導老師、班長與旁觀同學，收集了 ${colCount} 個社交心理線索，並建立了 ${linkCount} 個與課文概念對應的連結。您的報告精準分析了「旁觀者效應」與「同儕壓力」對學生默許霸凌行為的關鍵心理機制。\n\n建議：可以針對學校輔導處及班級幹部，提出一套具體且具備安全保護機制的匿名通報與支持系統，以促進友善校園建設。` :
+                `【Inquiry Evaluation Report - Score: ${score}/100】\nCompassionate and thorough research in "${title}"! You gathered ${colCount} psychological clues and mapped ${linkCount} evidence links. Your synthesis masterfully explains the Bystander Effect and conformity pressures under peer group dynamics.\n\nCritique Suggestion: Try to design a safe, anonymous reporting and peer-support protocol that counselors can deploy to build a more inclusive classroom culture.`;
+        }
+
+        if (activityId === 'activity_energy') {
+            return isZh ?
+                `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！你順利完成了《${title}》的調查！您收集了 ${colCount} 個關於生態保育與綠能發展衝突的線索，並對齊了 ${linkCount} 個證據連結。您在報告中成功呈現了生態學家（黑面琵鷺棲地）、在地漁民與光電開發商之間的三方立場衝突與權衡。\n\n建議：可進一步探究「漁電共生」或「動態保護區劃分」等國際折衷方案，從而提出更具建設性的永續共生政策方案。` :
+                `【Inquiry Evaluation Report - Score: ${score}/100】\nOutstanding balancing act in "${title}"! You collected ${colCount} conservation clues and established ${linkCount} grounding links. Your synthesis shows a clear understanding of the trade-offs between solar panel installation, Black-faced Spoonbill habitats, and fishermen's livelihood.\n\nCritique Suggestion: Expand your proposal by introducing global examples of agri-photovoltaics or seasonal wetland zones to foster true ecological symbiosis.`;
+        }
+
+        if (activityId === 'activity_ethics') {
+            return isZh ?
+                `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！你順利完成了《${title}》的調查！您收集了 ${colCount} 個關於學術誠信與 AI 生成工具使用的關鍵線索，並建立了 ${linkCount} 個課文規則的連結。您的報告清晰分析了「學生使用 AI 提詞記錄」與「學術倫理規範」的邊界衝突，指出了認知寫作過程與直接抄襲的區別。\n\n建議：建議在報告結尾，為學校與系所起草一份「AI 協同寫作指引草案」，讓工具的使用有章可循，既保護誠信又不扼殺科技學習。` :
+                `【Inquiry Evaluation Report - Score: ${score}/100】\nOutstanding investigation on "${title}"! You collected ${colCount} academic integrity clues and mapped ${linkCount} grounding connections. Your synthesis clearly distinguishes between cognitive AI assistance (prompt logs) and direct plagiarism.\n\nCritique Suggestion: Consider drafting a set of "AI Co-writing Guidelines" for your department to encourage transparent use of tech while upholding academic honesty.`;
+        }
+
+        // Generic Fallback
+        return isZh ?
+            `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！您順利完成了關於《${title}》的探究任務！您成功訪談了相關角色並實地進行探索，共收集了 ${colCount} 個關鍵線索，並建立了 ${linkCount} 個文本證據的雙向連結。您的報告架構清晰，能夠立足於客觀事實進行多方視角的理性推論！\n\n建議：建議在撰寫最終報告時，更主動地對比衝突性證據，分析不同說詞背後的動機，這能大幅提升您探究結果的深度與客觀度。` :
+            `【Inquiry Evaluation Report - Score: ${score}/100】\nCongratulations! You have completed the inquiry playtest for "${title}". By harvesting ${colCount} clues and cementing ${linkCount} grounding citations, your report demonstrates a logical structure built on raw evidence.\n\nCritique Suggestion: To improve further, explicitly compare conflicting testimonies in your writing and evaluate the underlying motivations of each source.`;
     }
 };
