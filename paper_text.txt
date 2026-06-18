@@ -1,0 +1,146 @@
+
+TextQuest AI: A Teacher-Oriented AI-NPC Storyworld Authoring Environment
+
+Chang-Yen LIAOa*
+aGraduate Institute of Network Learning Technology, National Central University, Taiwan
+* CalvinCYLiao@gmail.com
+
+Abstract: This design-oriented paper presents TextQuest AI, a teacher-oriented authoring environment for creating short, AI-NPC-based storyworld activities for text exploration. The proposed system addresses a practical design problem: teachers may wish to transform readings, local-cultural materials, historical cases, or inquiry topics into interactive learning experiences, but they often lack the time, technical skills, and narrative-design expertise required to build role-playing activities. TextQuest AI supports teachers in converting source texts into a small storyworld composed of locations, non-player characters (NPCs), clues, learning tasks, and reflection prompts. In the student interface, learners enter a web-based game-like environment, interact with AI-powered NPCs, collect evidence, compare perspectives, and produce a final interpretation or synthesis within an approximately 30-minute classroom activity. In the teacher interface, an AI design assistant helps analyze the source text, suggest NPC roles, generate dialogue rules, propose investigation tasks, and check whether the designed activity aligns with the learning goals. The initial teacher evaluation will involve 26 teachers: after a 20-minute explanation and guided trial, they will use the system for 40 minutes to design an AI-NPC storyworld activity and then evaluate their perceptions of the system. This paper describes the pedagogical rationale, system architecture, authoring workflow, example learning scenario, and teacher evaluation plan of TextQuest AI. The expected contribution is a design framework for connecting large language model (LLM)-based conversational agents with teacher-controllable storyworld authoring, with particular attention to textual comprehension, evidence-based reasoning, and classroom feasibility.
+Keywords: AI-NPC, authoring environment, text exploration, game-based learning, large language models, teacher support, teacher evaluation
+
+1. Introduction
+Recent advances in large language models (LLMs) have made it possible to create conversational agents that respond flexibly to learner questions, adopt roles, and provide immediate support. In education, however, the availability of conversational AI does not automatically lead to meaningful learning. Without pedagogical framing, an AI character can become a generic question-answering tool that gives away answers or encourages superficial interaction. The design challenge is therefore not merely to place AI chatbots into learning activities, but to help teachers orchestrate AI characters, narrative contexts, learning tasks, and assessment evidence in ways that are instructionally useful.
+This paper proposes TextQuest AI, a teacher-oriented authoring environment for designing AI-NPC storyworld activities. The term AI-NPC refers to an artificial intelligence-powered non-player character that operates within a designed narrative world and interacts with students according to teacher-defined roles, knowledge boundaries, and pedagogical functions. TextQuest AI is intended for short classroom activities, typically about 30 minutes, in which students explore a text-based scenario by visiting locations, interviewing AI-NPCs, collecting clues, and constructing a final interpretation.
+The central design goal is to enable teachers to transform a text into an explorable storyworld without requiring programming or professional game-design skills. A teacher may begin with a story, historical text, local cultural article, science reading, or issue-based text. The system then assists the teacher in identifying possible locations, character perspectives, key events, misconceptions, and evidence-based questions. Students subsequently engage with the resulting storyworld as investigators, readers, and knowledge builders rather than as passive recipients of information.
+This paper focuses on the conceptual design and initial teacher evaluation plan of TextQuest AI. The evaluation will examine how 26 teachers understand and use the authoring environment after a 20-minute explanation and guided trial, how they design short AI-NPC storyworld activities during a 40-minute authoring task, and how they evaluate the system's usability, usefulness, pedagogical value, controllability, and classroom feasibility. It aims to answer the following design question: How can an AI-supported authoring environment help teachers design short AI-NPC storyworld activities that support text comprehension, inquiry, and evidence-based reasoning?
+
+2. Theoretical and Design Background
+2.1 Game-Based and Storyworld Learning
+Recent studies of gamification and game-based learning suggest that game elements can support engagement and learning when they are aligned with clear instructional goals rather than used only as decoration (Zeng et al., 2024). For TextQuest AI, the value of a game-like environment does not lie in entertainment alone. It lies in how narrative, role, challenge, feedback, and progression can organize meaningful inquiry. TextQuest AI therefore treats reading as an interactive investigation: instead of answering comprehension questions after reading, students enter a storyworld where textual meaning must be constructed through exploration, dialogue, and evidence-based interpretation.
+This design is also informed by recent discussions of generative AI in education, which emphasize learner agency, ethical use, and the need to avoid uncritical automation of learning tasks (Chan & Hu, 2023; Kasneci et al., 2023). In TextQuest AI, the teacher is the primary designer of the activity, but students are positioned as investigators who reconstruct the meaning of a text through interaction with characters, clues, and source evidence. The design goal is therefore not to replace reading with game play, but to make comprehension visible through situated inquiry.
+
+2.2 Conversational Agents, Pedagogical Agents, and LLMs
+Educational research on generative AI and conversational agents has highlighted both opportunities and risks. LLM-based tools may support feedback, explanation, brainstorming, writing, and language learning, but they may also produce hallucinated information, encourage over-reliance, or misalign with learning objectives (Crompton & Burke, 2023; Kasneci et al., 2023; Kohnke et al., 2023). These concerns are especially relevant when AI agents interact with students in open-ended dialogue.
+TextQuest AI therefore treats AI-NPCs as bounded pedagogical agents rather than open-ended chatbots. Each NPC is defined by a role, knowledge base, clue function, dialogue style, and disclosure rule. The AI is instructed not to provide the final answer directly, but to reveal partial information, ask follow-up questions, and guide students back to textual evidence. This constraint is essential because the pedagogical value of the NPC is not simply to answer, but to scaffold inquiry.
+
+2.3 Teacher-Oriented Authoring
+A major barrier to classroom adoption of AI-enhanced learning environments is the authoring burden placed on teachers. Recent reviews and ethical discussions of AI in education argue that effective classroom integration requires teacher control, pedagogical alignment, transparency, and human oversight rather than fully automated content generation (Crompton & Burke, 2023; Nguyen et al., 2023). In TextQuest AI, the AI design assistant acts as a co-designer. It suggests possible storyworld structures, but the teacher remains responsible for selecting learning goals, editing NPC behavior, validating textual evidence, and deciding what students should produce.
+
+3. Design Goals
+TextQuest AI is guided by five design goals. First, the system should lower the threshold for teachers to create storyworld activities. Second, it should keep AI-NPC behavior pedagogically bounded and connected to the source text. Third, it should support short classroom implementation, especially 30-minute activities. Fourth, it should provide visible learning artifacts such as notes, clues, and final responses. Fifth, it should generate teacher-facing analytics that support post-activity reflection and instructional adjustment.
+
+Table 1. Design Goals and System Responses in TextQuest AI.
+Design Goal
+Authoring Response
+Learning Function
+Low-threshold authoring
+Text import, templates, and AI-suggested locations/NPCs
+Reduces technical burden for teachers.
+Grounded NPC dialogue
+Role profiles, evidence links, and disclosure rules
+Keeps interaction tied to the source text.
+Thirty-minute classroom use
+Limited locations, timers, and activity sequences
+Fits short classroom sessions.
+Evidence organization
+Clue notes and evidence tables
+Supports reasoning and synthesis.
+Teacher insight
+Dialogue logs and AI-generated learning summaries
+Supports follow-up instruction.
+
+4. System Design
+TextQuest AI consists of four main components: a teacher authoring studio, an AI design assistant, a student storyworld workspace, and a learning analytics dashboard. These components are connected by a shared activity model that stores the source text, learning goals, locations, NPC profiles, clue objects, task conditions, and assessment prompts.
+
+4.1 Teacher Authoring Studio
+The teacher authoring studio provides a card-based interface for designing a storyworld. A teacher first enters or uploads a source text and specifies the target learners, learning objectives, estimated activity time, and final learning product. The teacher can then create locations such as a library, village square, laboratory, riverbank, classroom, museum, or historical site. Each location may contain NPCs, clue objects, and task prompts.
+The studio supports three authoring templates: a text-mystery template, a multi-perspective issue template, and a concept-exploration template. In the text-mystery template, students investigate motives, causes, or hidden relationships in a narrative. In the multi-perspective issue template, students compare stakeholder views. In the concept-exploration template, students build understanding of a scientific, historical, or cultural concept through interaction with expert and witness characters.
+
+4.2 AI Design Assistant
+The AI design assistant supports the teacher at four points in the authoring process. During text analysis, it identifies key events, concepts, possible misunderstandings, and evidence-rich passages. During NPC generation, it suggests character names, identities, voice styles, knowledge boundaries, clue functions, and guiding questions. During task design, it proposes a 30-minute activity sequence with core and optional tasks. During quality checking, it reviews whether the design is feasible, coherent, and aligned with the learning objective.
+The assistant is not intended to automatically generate a complete activity without teacher review. Instead, each suggestion is editable. The system highlights which parts of the source text support each NPC's knowledge, thereby helping the teacher detect hallucinated or unsupported content. This design choice reflects a key principle of TextQuest AI: generative AI may accelerate authoring, but textual grounding and pedagogical validation should remain visible.
+
+4.3 Student Storyworld Workspace
+In the student workspace, learners enter the activity through a mission briefing. They see a simple map or set of location cards and can visit each location to interact with NPCs. Each AI-NPC speaks in a teacher-defined role and may provide clues, ask questions, or encourage students to revisit the text. Students can save important dialogue turns as clues, write notes, and link clues to evidence from the source text.
+The workspace is intentionally lightweight. The goal is not to build a complex massively multiplayer online game, but to create a classroom-manageable, web-based storyworld that borrows the useful structure of role-playing games: locations, characters, missions, clues, and progression. This design allows students to experience agency and exploration while keeping the learning task focused.
+
+4.4 Learning Analytics Dashboard
+After the activity, the teacher dashboard summarizes student interaction patterns. It can show which NPCs were visited, which clues were collected, what questions students asked, whether students cited textual evidence, and how students formulated final interpretations. The dashboard may also generate a post-activity teaching note, such as: students identified the conflict but did not sufficiently connect it to textual evidence. The teacher can use this information for whole-class discussion, feedback, or revision of the activity design.
+
+5. Example Learning Scenario
+To illustrate the intended use, consider a reading activity based on a local environmental text about a river, a village, and a new factory. The teacher imports the text and sets the learning objective: students should identify multiple possible causes of water shortage and support their explanation with evidence. The AI design assistant suggests three locations: the village square, the factory gate, and the riverbank. It also suggests four NPCs: an elderly farmer, a factory representative, an environmental volunteer, and a student reporter.
+Students begin with a mission: investigate why the river has changed and prepare a short evidence-based report. The elderly farmer provides memories of water abundance in the past; the factory representative explains economic development and denies direct responsibility; the environmental volunteer offers observations about pollution and rainfall changes; the student reporter asks learners to compare claims and evidence. No NPC gives the complete answer. Students must collect clues, compare perspectives, and cite the original text.
+
+Table 2. Example Thirty-Minute TextQuest AI Activity Flow
+Phase
+Time
+Student Activity
+Learning Artifact
+Mission briefing
+0-3 min
+Read the task background and learning goal.
+Initial understanding of the problem
+First exploration
+3-8 min
+Visit the first location and interview one NPC.
+Initial clue and note
+Investigation
+8-18 min
+Visit two or three locations and compare NPC claims.
+Multiple clues from different perspectives
+Evidence organization
+18-24 min
+Link clues with source-text evidence.
+Evidence table or clue map
+Final synthesis
+24-29 min
+Submit an explanation, report, or interpretation.
+Final response
+Reflection
+29-30 min
+Receive brief AI or teacher feedback.
+Revision intention or exit ticket
+
+6. Teacher Evaluation Plan
+The first empirical evaluation will focus on teacher authoring because TextQuest AI is designed primarily as a teacher-oriented authoring environment. The study will involve 26 teachers and will examine whether teachers can understand the authoring model, create a short AI-NPC storyworld activity, and identify the system's strengths and limitations after a compact hands-on experience. The procedure includes three phases. In the first phase, teachers will participate in a 20-minute explanation and guided trial in which the facilitator introduces the design rationale, demonstrates the teacher authoring studio, and allows participants to try a sample AI-NPC activity. In the second phase, teachers will use TextQuest AI for 40 minutes to design a short storyworld activity. They will select or receive a source text, define a learning goal, generate or edit locations and AI-NPCs, specify clues and tasks, and prepare a final reflection or synthesis prompt. In the final phase, teachers will evaluate the system and report their perceptions of its usability, usefulness, pedagogical value, controllability, and classroom feasibility.
+The teacher questionnaire will include rating-scale and open-ended items. Quantitative items will ask teachers to rate whether TextQuest AI is easy to learn, reduces the difficulty of designing NPC-based activities, supports the creation of pedagogically meaningful NPCs, helps connect dialogue with source-text evidence, fits a short classroom session, and provides sufficient teacher control over AI-generated content. Open-ended items will ask teachers to identify the most helpful functions, confusing parts of the interface, perceived risks of AI-NPC interaction, and possible classroom use cases. The artifacts created during the 40-minute authoring task and system logs will also be collected to examine how teachers use AI-generated suggestions, what they revise, and whether their final activity includes coherent locations, NPCs, clues, and evidence-oriented prompts.
+
+Table 3. Procedure for the Teacher Evaluation of TextQuest AI
+Phase
+Time
+Teacher Activity
+Evaluation Focus
+Orientation and guided trial
+20 min
+Receive system explanation, observe a demonstration, and try a sample AI-NPC activity.
+Initial understanding, learnability, and first impressions.
+Authoring task
+40 min
+Design a short TextQuest activity using a source text and AI-supported authoring tools.
+Authoring process, teacher-AI collaboration, and activity-design quality.
+System evaluation
+After authoring
+Complete a questionnaire and open-ended prompts about the design experience.
+Perceived usefulness, ease of use, pedagogical value, teacher control, concerns, and classroom feasibility.
+
+Data analysis will combine descriptive statistics with qualitative coding. Questionnaire ratings will summarize teachers' overall perceptions of usability, usefulness, pedagogical value, controllability, and feasibility. Open-ended responses and authoring artifacts will be coded to identify common strengths, design barriers, concerns about AI reliability, and desired system improvements. The teacher evaluation is expected to inform the next prototype iteration, especially revisions to the NPC-generation interface, evidence-linking tools, task templates, and teacher-facing analytics. Student learning outcomes will be examined in a subsequent classroom implementation after the teacher authoring workflow is refined.
+
+7. Discussion and Expected Contributions
+TextQuest AI contributes to the design of AI-enhanced learning environments in three ways. First, it shifts the focus from standalone AI chatbots to teacher-designed AI storyworlds. This shift responds to recent concerns that generative AI becomes educationally meaningful only when it is embedded in purposeful activity structures, evidence practices, and assessment designs (Chan & Hu, 2023; Kasneci et al., 2023). Second, it proposes a teacher-in-the-loop authoring model in which AI supports but does not replace pedagogical judgment, consistent with ethical calls for transparency and human oversight in educational AI (Nguyen et al., 2023). Third, it offers a concrete interaction pattern for text comprehension: students investigate, question, collect clues, link evidence, and synthesize meaning.
+The design also raises challenges. AI-NPCs must avoid fabricating unsupported information. Teachers need efficient ways to verify generated content. Students may ask irrelevant questions or attempt to obtain direct answers. The system therefore requires prompt constraints, retrieval from teacher-provided texts, dialogue monitoring, and reflective tasks that reward reasoning rather than answer extraction. Another challenge concerns classroom orchestration. A 30-minute activity must balance freedom and structure; too much openness may reduce focus, while too much structure may reduce agency.
+Despite these challenges, the proposed environment provides a promising direction for integrating LLM-based agents into classroom learning. Rather than treating AI as a universal tutor, TextQuest AI treats AI as a set of situated characters embedded in a teacher-designed pedagogical world. The planned evaluation with 26 teachers will provide evidence about whether this authoring model can be learned quickly and whether teachers perceive it as feasible for real classroom use. This perspective may be especially useful for reading, language education, humanities education, local-cultural learning, issue inquiry, and interdisciplinary activities, where generative AI should support interpretation and reasoning rather than simply produce answers (Kohnke et al., 2023; Mangal & Pardos, 2024).
+
+8. Conclusion
+This paper presented the design of TextQuest AI, a teacher-oriented AI-NPC storyworld authoring environment for short text exploration activities. The system enables teachers to transform texts into interactive storyworlds with locations, AI-NPCs, clues, tasks, and reflection prompts. It also provides AI support for text analysis, NPC generation, task sequencing, quality checking, and learning analytics. The initial evaluation will involve 26 teachers who first receive a 20-minute explanation and guided trial, then use the system for a 40-minute authoring task, and finally evaluate their perceptions of the system. The proposed design aims to make AI-enhanced narrative inquiry feasible for classroom teachers while preserving teacher control and textual grounding. Future work will involve analyzing the teacher evaluation data, revising the prototype, and examining student learning outcomes in classroom implementation.
+
+Acknowledgements
+This section will be completed after funding, institutional, and participant acknowledgements are finalized.
+
+References
+Chan, C. K. Y., & Hu, W. (2023). Students' voices on generative AI: Perceptions, benefits, and challenges in higher education. International Journal of Educational Technology in Higher Education, 20, Article 43. https://doi.org/10.1186/s41239-023-00411-8
+Crompton, H., & Burke, D. (2023). Artificial intelligence in higher education: The state of the field. International Journal of Educational Technology in Higher Education, 20, Article 22. https://doi.org/10.1186/s41239-023-00392-8
+Kasneci, E., Sessler, K., Kuchemann, S., Bannert, M., Dementieva, D., Fischer, F., Gasser, U., Groh, G., Gunnemann, S., Hullermeier, E., Krusche, S., Kutyniok, G., Michaeli, T., Nerdel, C., Pfeffer, J., Poquet, O., Sailer, M., Schmidt, A., Seidel, T., ... Kasneci, G. (2023). ChatGPT for good? On opportunities and challenges of large language models for education. Learning and Individual Differences, 103, Article 102274. https://doi.org/10.1016/j.lindif.2023.102274
+Kohnke, L., Moorhouse, B. L., & Zou, D. (2023). ChatGPT for language teaching and learning. RELC Journal, 54(2), 537-550. https://doi.org/10.1177/00336882231162868
+Mangal, M., & Pardos, Z. A. (2024). Implementing equitable and intersectionality-aware AI in education: A practical guide. British Journal of Educational Technology. Advance online publication.
+Nguyen, A., Ngo, H. N., Hong, Y., Dang, B., & Nguyen, B.-P. T. (2023). Ethical principles for artificial intelligence in education. Education and Information Technologies, 28, 4221-4241. https://doi.org/10.1007/s10639-022-11316-w
+Zeng, J., Parks, S., & Shang, J. (2024). Exploring the impact of gamification on students' academic performance: A comprehensive meta-analysis of studies from the year 2008 to 2023. British Journal of Educational Technology. Advance online publication.

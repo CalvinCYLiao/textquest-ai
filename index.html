@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextQuest AI - Bounded Storyworld Authoring Environment</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Vanilla CSS -->
+    <link rel="stylesheet" href="css/style.css?v=1.0.2">
+    <!-- Diagnostic script to show JavaScript errors directly on the screen -->
+    <script>
+        // Define escapeHtml early so it is globally available to all scripts
+        window.escapeHtml = function(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        };
+
+        window.addEventListener('error', function(e) {
+            var container = document.getElementById('debug-error-console');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'debug-error-console';
+                container.style.cssText = 'position:fixed;bottom:20px;right:20px;max-width:400px;background:rgba(239,68,68,0.95);color:white;padding:16px;border-radius:12px;z-index:99999;font-family:monospace;font-size:12px;box-shadow:0 10px 25px rgba(0,0,0,0.5);border:1px solid #f87171;overflow:auto;max-height:300px;';
+                document.body.appendChild(container);
+                
+                var title = document.createElement('h3');
+                title.textContent = '⚠️ System Error Detected:';
+                title.style.margin = '0 0 8px 0';
+                title.style.fontSize = '14px';
+                container.appendChild(title);
+            }
+            var errEl = document.createElement('div');
+            errEl.style.marginBottom = '6px';
+            errEl.style.borderBottom = '1px solid rgba(255,255,255,0.2)';
+            errEl.style.paddingBottom = '6px';
+            
+            var errorMsg = e.message + ' at ' + (e.filename || 'unknown') + ':' + e.lineno;
+            errEl.textContent = errorMsg;
+            container.appendChild(errEl);
+
+            // Diagnostics hint for local file protocol restrictions (CORS-muting)
+            if (e.message === 'Script error.' || !e.filename || e.lineno === 0) {
+                var hintEl = document.createElement('div');
+                hintEl.style.cssText = 'font-size:11px;color:#fef08a;margin-top:4px;line-height:1.4;background:rgba(0,0,0,0.2);padding:8px;border-radius:6px;';
+                hintEl.innerHTML = '💡 <strong>安全提示 (Security Notice)</strong>:<br>' +
+                    '如果您的瀏覽器由於本地檔案安全性限制（特別是使用 <code>file://</code> 協議訪問時）阻擋了外部腳本載入，可能會導致程式無法正常運作，並在主畫面上顯示 "Script error." 的錯誤訊息。<br>' +
+                    '我們建議您在終端機中運行 <strong><a href="http://localhost:8000" target="_blank" style="color:#67e8f9;text-decoration:underline;">http://localhost:8000</a></strong> 本地伺服器來載入此頁面，這樣大語言模型的連線和各模組的 JavaScript 初始化才能正常運行！';
+                container.appendChild(hintEl);
+            }
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            var container = document.getElementById('debug-error-console');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'debug-error-console';
+                container.style.cssText = 'position:fixed;bottom:20px;right:20px;max-width:400px;background:rgba(239,68,68,0.95);color:white;padding:16px;border-radius:12px;z-index:99999;font-family:monospace;font-size:12px;box-shadow:0 10px 25px rgba(0,0,0,0.5);border:1px solid #f87171;overflow:auto;max-height:300px;';
+                document.body.appendChild(container);
+                
+                var title = document.createElement('h3');
+                title.textContent = '⚠️ Promise Rejection Detected:';
+                title.style.margin = '0 0 8px 0';
+                title.style.fontSize = '14px';
+                container.appendChild(title);
+            }
+            var errEl = document.createElement('div');
+            errEl.style.marginBottom = '6px';
+            errEl.style.borderBottom = '1px solid rgba(255,255,255,0.2)';
+            errEl.style.paddingBottom = '6px';
+            errEl.textContent = 'Unhandled Rejection: ' + e.reason;
+            container.appendChild(errEl);
+        });
+    </script>
+</head>
+<body class="dark-theme">
+    <!-- Global Header -->
+    <header class="global-header">
+        <div class="logo-area">
+            <div class="logo-icon">🕹️</div>
+            <div class="logo-text">
+                <h1>TextQuest AI</h1>
+                <span class="logo-subtitle">Bounded Storyworld Authoring Environment</span>
+            </div>
+        </div>
+        
+        <!-- Global Nav Mode Switcher -->
+        <nav class="mode-nav">
+            <button id="btn-mode-teacher" class="nav-btn active" data-mode="teacher">
+                <span class="icon">🛠️</span>
+                <span class="text" data-zh="教師設計工作室" data-en="Teacher Studio">教師設計工作室</span>
+            </button>
+            <button id="btn-mode-student" class="nav-btn" data-mode="student">
+                <span class="icon">🧭</span>
+                <span class="text" data-zh="學生探索空間" data-en="Student Workspace">學生探索空間</span>
+            </button>
+            <button id="btn-mode-analytics" class="nav-btn" data-mode="analytics">
+                <span class="icon">📊</span>
+                <span class="text" data-zh="學習分析儀表板" data-en="Analytics Dashboard">學習分析儀表板</span>
+            </button>
+        </nav>
+        
+        <!-- Header Actions -->
+        <div class="header-actions">
+            <!-- Language Switcher -->
+                <button id="btn-lang" class="nav-btn-icon" title="切換語言 / Switch Language">
+                <span class="icon">🌐</span>
+                <span id="lang-label">EN</span>
+            </button>
+            <!-- API Settings Button -->
+                <button id="btn-settings" class="nav-btn-icon" title="AI API設定 / API Settings">
+                <span class="icon">⚙️</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        
+        <!-- ============================================== -->
+        <!-- TEACHER STUDIO VIEW                            -->
+        <!-- ============================================== -->
+        <section id="view-teacher" class="view-panel active">
+            <div class="studio-layout">
+                <!-- Left: Source & Activity Configuration -->
+                <div class="studio-sidebar glass-card">
+                    <div class="section-title">
+                        <h3>1. <span data-zh="活動設定" data-en="Activity Configuration">活動設定</span></h3>
+                    </div>
+                    
+                    <!-- Template Chooser -->
+                    <div class="form-group">
+                        <label class="form-label" data-zh="選擇探究設計範本" data-en="Select Design Template">選擇探究設計範本</label>
+                        <div class="template-selector">
+                            <div class="template-card active" data-template="mystery">
+                                <div class="template-icon">🔍</div>
+                                <div class="template-info">
+                                    <h4 data-zh="文本微解密" data-en="Text Mystery">文本微解密</h4>
+                                    <p data-zh="探究事件的潛在動機、因果關係與事實真相。" data-en="Investigate motives and causal paths.">探究事件的潛在動機、因果關係與事實真相。</p>
+                                </div>
+                            </div>
+                            <div class="template-card" data-template="perspective">
+                                <div class="template-icon">💬</div>
+                                <div class="template-info">
+                                    <h4 data-zh="多角度觀點" data-en="Multi-Perspective">多角度觀點</h4>
+                                    <p data-zh="比較不同利益關係者的觀點與立場。" data-en="Compare stakeholder viewpoints.">比較不同利益關係者的觀點與立場。</p>
+                                </div>
+                            </div>
+                            <div class="template-card" data-template="concept">
+                                <div class="template-icon">💡</div>
+                                <div class="template-info">
+                                    <h4 data-zh="概念探究" data-en="Concept Inquiry">概念探究</h4>
+                                    <p data-zh="探索科學、歷史或社會學科的核心概念與事實。" data-en="Explore scientific or historical concepts.">探索科學、歷史或社會學科的核心概念與事實。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Activity Details -->
+                    <div class="form-group">
+                        <label for="input-title" class="form-label" data-zh="活動名稱" data-en="Activity Title">活動名稱</label>
+                        <input type="text" id="input-title" class="form-input" placeholder="例如：尋找綠溪庄污染源..." value="綠溪庄的失落水源 (The Lost Riverwater)">
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="input-target" class="form-label" data-zh="預期學習對象" data-en="Target Learners">預期學習對象</label>
+                            <input type="text" id="input-target" class="form-input" placeholder="例如：國中八年級" value="國中八年級 (Grade 8)">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-time" class="form-label" data-zh="時間限制 (分鐘)" data-en="Time Limit (min)">時間限制 (分鐘)</label>
+                            <input type="number" id="input-time" class="form-input" value="30">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-goals" class="form-label" data-zh="預期學習目標" data-en="Learning Objectives">預期學習目標</label>
+                        <textarea id="input-goals" class="form-input text-area" rows="2" placeholder="學生應能分析綠溪庄污染原因，並指出不同NPC說詞的盲點...">學生應能分析綠溪庄污染原因，並指出不同NPC說詞的盲點...</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-source-text" class="form-label" data-zh="原始探究課文" data-en="Source Exploration Text">原始探究課文</label>
+                        <textarea id="input-source-text" class="form-input text-area tall" rows="8" placeholder="請輸入或貼上活動探究文本內容..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="input-product" class="form-label" data-zh="最終學習成果表現形式" data-en="Final Synthesis Product">最終學習成果表現形式</label>
+                        <textarea id="input-product" class="form-input text-area" rows="2" placeholder="請引導學生從不同NPC的說詞與證據中，推理出水源污染的多元成因，並提出具體改善計畫。">請引導學生從不同NPC的說詞與證據中，推理出水源污染的多元成因，並提出具體改善計畫。</textarea>
+                    </div>
+                </div>
+
+                <!-- Middle/Right: Interactive Canvas -->
+                <div class="studio-canvas-area">
+                    <div class="canvas-header">
+                        <div class="canvas-title">
+                            <h3 data-zh="🧭 探究場景地圖" data-en="🧭 Storyworld Map">🧭 探究場景地圖</h3>
+                            <p data-zh="點擊卡片進行編輯，或使用 AI 助手自動生成。" data-en="Click cards to edit, or use the AI Assistant to generate.">點擊卡片進行編輯，或使用 AI 助手自動生成。</p>
+                        </div>
+                        <div class="canvas-actions">
+                            <button id="btn-add-location" class="btn btn-secondary">
+                                <span class="icon">🛠️</span> <span data-zh="新增探索場景" data-en="Add Location">新增探索場景</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Interactive Visual Map Editor Grid -->
+                    <div id="locations-grid" class="locations-grid">
+                        <!-- Location Cards will be generated dynamically by JS -->
+                    </div>
+                </div>
+
+                <!-- Right Sidebar: AI Design Assistant -->
+                <div class="studio-ai-sidebar glass-card">
+                    <div class="ai-sidebar-header">
+                        <div class="ai-pulse-icon">🤖</div>
+                        <div class="ai-sidebar-title">
+                            <h3 data-zh="AI 協同設計助手" data-en="AI Design Assistant">AI 協同設計助手</h3>
+                            <span class="badge ai-badge" data-zh="AI 教學設計助手" data-en="Pedagogical Co-designer">AI 教學設計助手</span>
+                        </div>
+                    </div>
+
+                    <div class="ai-status-indicator idleness" id="ai-status-box">
+                        <div class="spinner hidden" id="ai-spinner"></div>
+                        <div class="status-text" id="ai-status-text" data-zh="準備就緒。請輸入探究文本以開始設計。" data-en="Ready. Please import text to begin.">準備就緒。請輸入探究文本以開始設計。</div>
+                    </div>
+
+                    <div class="ai-assistant-steps">
+                        <!-- Step 1: Text Analysis -->
+                        <div class="ai-step-item" id="ai-step-1">
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <h4 data-zh="深度文本分析" data-en="Deep Text Analysis">深度文本分析</h4>
+                                <p data-zh="識別文本中的核心事件、重要概念與學生常見的迷思概念。" data-en="Identify core events, concepts, and misconceptions.">識別文本中的核心事件、重要概念與學生常見的迷思概念。</p>
+                                <button id="btn-ai-analyze" class="btn btn-ai btn-sm w-full mt-2">
+                                    <span>🔍</span> <span data-zh="分析探究文本" data-en="Analyze Text">分析探究文本</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: NPC & Location Generation -->
+                        <div class="ai-step-item locked" id="ai-step-2">
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <h4 data-zh="自動生成場景與角色" data-en="Generate Locations & NPCs">自動生成場景與角色</h4>
+                                <p data-zh="依據文本內容，自動生成具有不同觀點立場的角色與線索。" data-en="Generate perspective-driven NPCs and clues.">依據文本內容，自動生成具有不同觀點立場的角色與線索。</p>
+                                <button id="btn-ai-generate-npcs" class="btn btn-ai btn-sm w-full mt-2" disabled>
+                                    <span>👥</span> <span data-zh="生成故事探究世界" data-en="Generate Storyworld">生成故事探究世界</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Core Task & Progression -->
+                        <div class="ai-step-item locked" id="ai-step-3">
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <h4 data-zh="任務流程規劃" data-en="Task & Flow Design">任務流程規劃</h4>
+                                <p data-zh="為學生規劃 30 分鐘的課堂探究任務與引導流程。" data-en="Propose 30-min student exploration tasks.">為學生規劃 30 分鐘的課堂探究任務與引導流程。</p>
+                                <button id="btn-ai-design-tasks" class="btn btn-ai btn-sm w-full mt-2" disabled>
+                                    <span>📝</span> <span data-zh="設計學習任務流程" data-en="Design Task Flow">設計學習任務流程</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Quality & Grounding Checker -->
+                        <div class="ai-step-item locked" id="ai-step-4">
+                            <div class="step-num">4</div>
+                            <div class="step-content">
+                                <h4 data-zh="設計品質與文本佐證關聯性檢查" data-en="Quality & Grounding Check">設計品質與文本佐證關聯性檢查</h4>
+                                <p data-zh="限制 AI 角色僅能依據文本內容回答，避免產生幻覺。" data-en="Prevent hallucinations. Ensure grounded dialogue.">限制 AI 角色僅能依據文本內容回答，避免產生幻覺。</p>
+                                <button id="btn-ai-check-quality" class="btn btn-ai btn-sm w-full mt-2" disabled>
+                                    <span>✅</span> <span data-zh="執行品質檢查" data-en="Run Quality Check">執行品質檢查</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Analysis Highlights Output Panel (Hidden by default, shown upon analysis) -->
+                    <div id="ai-results-panel" class="ai-results-panel hidden">
+                        <div class="panel-header">
+                            <h4 data-zh="AI 文本分析結果" data-en="AI Analysis Findings">AI 文本分析結果</h4>
+                            <button id="btn-close-ai-results" class="close-btn">&times;</button>
+                        </div>
+                        <div class="panel-body" id="ai-results-content">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- STUDENT PLAYTEST VIEW                          -->
+        <!-- ============================================== -->
+        <section id="view-student" class="view-panel hidden">
+            <!-- 1. Mission Briefing (Overlay before start) -->
+            <div id="student-briefing" class="student-briefing-screen">
+                <div class="briefing-card glass-card">
+                    <div class="briefing-header">
+                        <div class="badge badge-mission" data-zh="探究任務簡報" data-en="Mission Briefing">探究任務簡報</div>
+                        <h2 id="brief-title">綠溪庄的失落水源 (The Lost Riverwater)</h2>
+                    </div>
+                    <div class="briefing-body">
+                        <div class="briefing-meta">
+                            <div><strong>👥 <span data-zh="身份頭銜" data-en="Identity">身份頭銜</span>:</strong> <span data-zh="獨立探究調查員" data-en="Independent Investigator">獨立探究調查員</span></div>
+                            <div><strong>⏱️ <span data-zh="時間限制" data-en="Time Limit">時間限制</span>:</strong> <span id="brief-time">30</span> <span data-zh="分鐘" data-en="Minutes">分鐘</span></div>
+                            <div><strong>🎯 <span data-zh="學習對象" data-en="Target">學習對象</span>:</strong> <span id="brief-target">國中八年級</span></div>
+                        </div>
+                        
+                        <div class="briefing-section">
+                            <h4 data-zh="🎯 你的探究任務與目標" data-en="🎯 Your Mission Objective">🎯 你的探究任務與目標</h4>
+                            <p id="brief-goals">（由 JavaScript 動態填入）</p>
+                        </div>
+
+                        <div class="briefing-section">
+                            <h4 data-zh="📝 最終學習成果要求" data-en="📝 Final Product Requirement">📝 最終學習成果要求</h4>
+                            <p id="brief-product">（由 JavaScript 動態填入）</p>
+                        </div>
+                        
+                        <div class="briefing-tips">
+                            <h5 data-zh="📖 探究調查指南：" data-en="📖 Investigation Guidelines:">📖 探究調查指南：</h5>
+                            <ul>
+                                <li data-zh="在地圖上移動到不同的場景以尋找線索。" data-en="Travel to different locations on the map.">在地圖上移動到不同的場景以尋找線索。</li>
+                                <li data-zh="訪談場景中的角色。請記住，每個人都有自己的觀點與立場偏見，不會直接告訴你標準答案！" data-en="Interview NPCs. Remember, they have bias and won't just hand you the answer!">訪談場景中的角色。請記住，每個人都有自己的觀點與立場偏見，不會直接告訴你標準答案！</li>
+                                <li data-zh="將 NPC 對話中的關鍵陳述收集為線索，並與原始文本中的段落建立關聯。" data-en="Collect key statements as clues and link them to paragraphs in the source text.">將 NPC 對話中的關鍵陳述收集為線索，並與原始文本中的段落建立關聯。</li>
+                                <li data-zh="請整合你收集到的所有證據與推論，撰寫最終的探究合成報告。" data-en="Synthesize your collected evidence and write your final report.">請整合你收集到的所有證據與推論，撰寫最終的探究合成報告。</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="briefing-footer">
+                        <button id="btn-start-mission" class="btn btn-primary btn-lg">
+                                <span data-zh="✅ 接受任務，開始探索！" data-en="✅ Accept Mission & Begin">✅ 接受任務，開始探索！</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Active Exploration Workspace -->
+            <div id="student-workspace" class="student-workspace hidden">
+                <!-- Top StatusBar (Timer & Progression) -->
+                <div class="student-status-bar glass-card">
+                    <div class="status-left">
+                        <span class="mission-icon">🔍</span>
+                        <div class="mission-details">
+                            <h4 id="active-mission-name">綠溪庄的失落水源</h4>
+                            <span class="badge badge-active-mode" data-zh="探究調查中" data-en="Investigating">探究調查中</span>
+                        </div>
+                    </div>
+                    <!-- Timeline / Sequence Tracker -->
+                    <div class="sequence-tracker" id="student-sequence-flow">
+                        <!-- Populated by JS representing Phase Blocks -->
+                    </div>
+                    <div class="status-right">
+                        <div class="timer-display">
+                            <span class="timer-icon">⏱️</span>
+                            <span id="student-timer">30:00</span>
+                        </div>
+                        <button id="btn-toggle-synthesis" class="btn btn-success">
+                            <span class="icon">📝</span> <span data-zh="撰寫並提交整合報告" data-en="Write & Submit Report">撰寫並提交整合報告</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Active Screen -->
+                <div class="student-game-grid">
+                    
+                    <!-- Left: Navigation Map & Locations -->
+                    <div class="student-map-panel glass-card">
+                        <div class="panel-header">
+                            <h3 data-zh="🧭 探究場景地圖" data-en="🧭 Storyworld Map">🧭 探究場景地圖</h3>
+                            <span class="sub" data-zh="選擇要探索的場景" data-en="Travel to locations">選擇要探索的場景</span>
+                        </div>
+                        
+                        <!-- Travel visual transition layer -->
+                        <div id="travel-overlay" class="travel-overlay hidden">
+                            <div class="travel-spinner">
+                                <div class="compass-needle">🧭</div>
+                                <div class="travel-text" data-zh="正在前往..." data-en="Traveling to...">正在前往...</div>
+                            </div>
+                        </div>
+
+                        <div id="student-map-grid" class="student-map-grid">
+                            <!-- Visual Location Cards generated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Middle: Inquiry Text (Top) & Location Interaction / Chat (Bottom) -->
+                    <div class="student-middle-panel">
+                        <!-- Upper: Inquiry Text Reader -->
+                        <div class="student-reader-section glass-card">
+                            <div class="panel-header" style="padding-bottom: 6px; margin-bottom: 6px;">
+                                <h3 data-zh="探究文本" data-en="Source Text">探究文本</h3>
+                                <span class="sub" data-zh="💡 提示：在文字中拖曳選取句子，然後點擊「將選取文字與線索連結」將其綁定為佐證證據！" data-en="💡 Tip: Drag-select or click a sentence, then click 'Link Highlight to Clue' to bind it as evidence!">💡 提示：在文字中拖曳選取句子，然後點擊「將選取文字與線索連結」將其綁定為佐證證據！</span>
+                            </div>
+                            
+                            <div class="reader-split-layout">
+                                <!-- Matching Scenario Image -->
+                                <div class="source-text-image-container" id="btn-zoom-image">
+                                    <img src="assets/green_creek_map.png" alt="Green Creek Village" class="source-text-image">
+                                    <div class="image-caption" data-zh="點擊地圖放大 🗺️" data-en="Click to zoom map 🗺️">點擊地圖放大 🗺️</div>
+                                </div>
+                                
+                                <div class="source-text-reader" id="source-text-reader-container">
+                                    <!-- Populated sentence by sentence with selection triggers -->
+                                </div>
+                            </div>
+                            <button id="btn-mark-evidence" class="btn btn-secondary btn-sm floating-evidence-btn hidden">
+                                🔗 <span data-zh="將選取文字與線索連結" data-en="Link Highlight to Clue">將選取文字與線索連結</span>
+                            </button>
+                        </div>
+
+                        <!-- Lower: Location Interaction Hub & Dialogue -->
+                        <div class="student-interaction-panel glass-card" id="student-interaction-panel">
+                            <div id="empty-interaction-state" class="empty-state">
+                                <div class="empty-icon">💬</div>
+                                <h3 data-zh="請選擇一個場景" data-en="Please Select a Location">請選擇一個場景</h3>
+                                <p data-zh="點擊左側地圖上的地點，尋找線索並訪談目擊者。" data-en="Click a location on the left map to search for clues and interview witnesses.">點擊左側地圖上的地點，尋找線索並訪談目擊者。</p>
+                            </div>
+                            
+                            <!-- Active Location Container -->
+                            <div id="active-location-container" class="active-location-container hidden">
+                                <!-- Location Header -->
+                                <div class="location-header-bar" id="active-loc-header">
+                                    <div class="loc-badge-icon" id="active-loc-icon">📍</div>
+                                    <div class="loc-details">
+                                        <h3 id="active-loc-name">場景名稱</h3>
+                                        <p id="active-loc-desc">場景描述資訊...</p>
+                                    </div>
+                                    <button id="btn-leave-location" class="btn btn-sm btn-secondary" data-zh="離開場景" data-en="Leave">離開場景</button>
+                                </div>
+                                
+                                <!-- Location Split: Characters & Clues -->
+                                <div class="location-split">
+                                    <!-- NPC selector list in this location -->
+                                    <div class="location-actors">
+                                        <h4 data-zh="👥 場景中的人物" data-en="👥 Characters Here">👥 場景中的人物</h4>
+                                        <div id="location-npcs-list" class="npc-actor-list">
+                                            <!-- NPCs generated here -->
+                                        </div>
+                                        
+                                        <h4 class="mt-4" data-zh="💼 收集到的線索與物品" data-en="💼 Clues & Items">💼 收集到的線索與物品</h4>
+                                        <div id="location-clues-list" class="clue-item-list">
+                                            <!-- Clues lying in location -->
+                                        </div>
+                                    </div>
+
+                                    <!-- Active Chat Interface -->
+                                    <div class="dialogue-box" id="dialogue-box">
+                                        <div id="dialogue-empty-state" class="empty-state">
+                                            <div class="empty-icon">💬</div>
+                                            <h4 data-zh="請選擇一位場景中的人物進行訪談" data-en="Select an NPC to Interview">請選擇一位場景中的人物進行訪談</h4>
+                                            <p data-zh="點擊左側的角色頭像，開始與他們進行對話對話。" data-en="Click an NPC profile on the left to start a dialogue.">點擊左側的角色頭像，開始與他們進行對話對話。</p>
+                                        </div>
+                                        
+                                        <div id="active-chat-container" class="active-chat-container hidden">
+                                            <div class="chat-header">
+                                                <div class="npc-chat-avatar" id="chat-npc-avatar">👴</div>
+                                                <div class="npc-chat-meta">
+                                                    <h4 id="chat-npc-name">老農夫 阿土伯</h4>
+                                                    <span class="chat-npc-style" id="chat-npc-style">說話帶著濃濃的鄉音，感嘆過去的河流生機。</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Conversations logs -->
+                                            <div class="chat-history" id="chat-history">
+                                                <!-- Dynamically generated dialogue bubbles -->
+                                            </div>
+                                            
+                                            <!-- Scaffolded Questions suggestions -->
+                                            <div class="chat-scaffolding-questions" id="chat-scaffolding-box">
+                                                <span class="scaffold-title" data-zh="💡 建議提問：" data-en="💡 Suggested Questions:">💡 建議提問：</span>
+                                                <div class="scaffold-list" id="chat-scaffold-list">
+                                                    <!-- Dynamic scaffolding questions based on NPC clue status -->
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Custom Chat Input -->
+                                            <div class="chat-input-bar">
+                                                <input type="text" id="chat-input-text" placeholder="輸入你想追問的問題..." data-zh-placeholder="輸入你想追問的問題..." data-en-placeholder="Type your question to probe...">
+                                                <button id="btn-chat-send" class="btn btn-primary">
+                                                    <span data-zh="提問" data-en="Ask">提問</span> <span>💬</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Evidence Binder (Always visible) -->
+                    <div class="student-binder-panel glass-card">
+                        <div class="panel-header" style="padding-bottom: 6px; margin-bottom: 6px;">
+                            <h3 data-zh="💼 證據收集箱" data-en="💼 Evidence Binder">💼 證據收集箱</h3>
+                            <span class="sub" data-zh="你收集到的 NPC 角色線索與已綁定的課文證據" data-en="Collected NPC clues and grounded evidence connections">你收集到的 NPC 角色線索與已綁定的課文證據</span>
+                        </div>
+                        <div class="binder-grid" id="binder-clues-grid" style="margin-top: 10px;">
+                            <!-- Collected Clue Cards and their linked evidence mapping -->
+                        </div>
+                    </div>
+                </div> <!-- Closes student-game-grid -->
+            </div> <!-- Closes student-workspace -->
+            <!-- 3. Student Synthesis Submission Drawer -->
+            <div id="synthesis-overlay" class="synthesis-overlay-screen hidden">
+                <div class="synthesis-modal glass-card">
+                    <div class="synthesis-header">
+                        <h2 data-zh="📊 撰寫最終探究成果報告" data-en="📊 Final Synthesis Report">📊 撰寫最終探究成果報告</h2>
+                        <button id="btn-close-synthesis" class="close-btn">&times;</button>
+                    </div>
+                    <div class="synthesis-split">
+                        <!-- Writing editor -->
+                        <div class="synthesis-editor-container">
+                            <div class="form-group">
+                                <label class="form-label" data-zh="成果報告標題" data-en="Report Title">成果報告標題</label>
+                                <input type="text" id="synth-input-title" class="form-input" value="" placeholder="請輸入你的成果報告標題...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-zh="活動產出目標" data-en="Activity Product Goal">活動產出目標</label>
+                                <blockquote class="synthesis-goal-reminder" id="synth-product-reminder"></blockquote>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-zh="綜合論證報告內文" data-en="Synthesis Report Body">綜合論證報告內文</label>
+                                <textarea id="synth-input-body" class="form-input text-area tall-synthesis" rows="12" placeholder="請在此撰寫你的整合探究報告，整合你從各NPC處收集到的證據與課文內容，進行邏輯嚴密的論證分析。"></textarea>
+                            </div>
+                            <div class="synth-actions">
+                                <button id="btn-save-draft" class="btn btn-secondary" data-zh="儲存設計草稿" data-en="Save Draft">儲存設計草稿</button>
+                                <button id="btn-submit-report" class="btn btn-success btn-lg">
+                                    <span>📤</span> <span data-zh="提交探究成果" data-en="Submit Mission">提交探究成果</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Evidence Reference Sidebar -->
+                        <div class="synthesis-evidence-sidebar">
+                            <h4 data-zh="📌 引用已收集的線索（點擊插入）" data-en="📌 Cite Collected Clues (Click to insert)">📌 引用已收集的線索（點擊插入）</h4>
+                            <p class="desc" data-zh="高品質的探究需要引用並關聯 2 個以上的證據線索，才能進行有效的論證推理！" data-en="High quality inquiry requires citing multiple linked clues.">高品質的探究需要引用並關聯 2 個以上的證據線索，才能進行有效的論證推理！</p>
+                            
+                            <div class="synthesis-citation-list" id="synthesis-citation-list">
+                                <!-- Cards of gathered clues that are linked. Clicking copies a markdown citation or places it in editor -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Playtest Submission success review sheet -->
+            <div id="student-success-sheet" class="student-success-screen hidden">
+                <div class="success-card glass-card">
+                    <div class="success-icon">🎉</div>
+                        <div class="feedback-avatar">🤖</div>
+                    <p data-zh="你已成功完成所有場景的調查，並撰寫了一份證據充分、邏輯嚴密的探究報告。" data-en="You completed the investigation and compiled a rich, evidence-based report.">你已成功完成所有場景的調查，並撰寫了一份證據充分、邏輯嚴密的探究報告。</p>
+                    
+                    <div class="submitted-report-review">
+                        <h4 id="success-report-title"></h4>
+                        <div id="success-report-body" class="report-body-rendered"></div>
+                        <div id="success-report-citations" class="report-citations-list"></div>
+                    </div>
+                    
+                    <!-- Quick feedback mockup from Teacher/AI -->
+                    <div class="ai-learning-feedback">
+                        <div class="feedback-avatar">🤖</div>
+                        <div class="feedback-content">
+                            <h5 data-zh="AI 探究學習回饋" data-en="AI Inquiry Feedback">AI 探究學習回饋</h5>
+                            <p id="success-ai-feedback" data-zh="正在生成回饋中..." data-en="Generating feedback...">正在生成回饋中...</p>
+                        </div>
+                    </div>
+
+                    <div class="success-actions">
+                        <button id="btn-back-to-authoring" class="btn btn-primary">
+                            <span>↩️</span> <span data-zh="返回教師設計工作室" data-en="Back to Teacher Studio">返回教師設計工作室</span>
+                        </button>
+                        <button id="btn-view-analytics-redirect" class="btn btn-secondary">
+                            <span>📊</span> <span data-zh="檢視學生學習數據分析儀表板" data-en="View Analytics Dashboard">檢視學生學習數據分析儀表板</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- LEARNING ANALYTICS VIEW                        -->
+        <!-- ============================================== -->
+        <section id="view-analytics" class="view-panel hidden">
+            <div class="analytics-layout">
+                <!-- Left panel: Classroom metrics & AI reflection note -->
+                <div class="analytics-main-panel glass-card">
+                    <div class="section-title">
+                        <div class="icon">📊</div>
+                        <h3 data-zh="班級探究學習數據分析" data-en="Classroom Inquiry Analytics">班級探究學習數據分析</h3>
+                    </div>
+
+                    <!-- Metrics cards row -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="num" id="metric-students">26 / 26</div>
+                            <div class="lbl" data-zh="已提交學習成果人數" data-en="Submissions">已提交學習成果人數</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="num" id="metric-avg-time">19.5m</div>
+                            <div class="lbl" data-zh="平均探索時間" data-en="Avg Exploration Time">平均探索時間</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="num" id="metric-clues-pct">84%</div>
+                            <div class="lbl" data-zh="線索收集比例" data-en="Clue Collection Rate">線索收集比例</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="num" id="metric-evidence-pct">76%</div>
+                            <div class="lbl" data-zh="證據佐證比例" data-en="Evidence Grounding Pct">證據佐證比例</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts section -->
+                    <div class="charts-layout-row">
+                        <!-- Chart 1: NPC Visit frequency -->
+                        <div class="chart-container">
+                            <h4 data-zh="📊 角色(NPC)訪談次數統計" data-en="📊 NPC Visit Frequency">📊 角色(NPC)訪談次數統計</h4>
+                            <div class="svg-chart-placeholder" id="chart-npc-visits">
+                                <!-- Dynamic SVG bar chart will be drawn here -->
+                            </div>
+                        </div>
+
+                        <!-- Chart 2: Clues linkage coverage -->
+                        <div class="chart-container">
+                            <h4 data-zh="📈 線索收集與課文段落關聯比例" data-en="📈 Clue Collection & Linking Rate">📈 線索收集與課文段落關聯比例</h4>
+                            <div class="svg-chart-placeholder" id="chart-clue-links">
+                                <!-- Dynamic SVG horizontal bar chart -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI generated teaching post-activity note -->
+                    <div class="ai-teaching-reflection-card mt-4">
+                        <div class="card-header">
+                            <span class="icon">🤖</span>
+                            <h4 data-zh="AI 生成課後教學提示與建議" data-en="AI-Generated Post-Activity Teaching Note">AI 生成課後教學提示與建議</h4>
+                            <span class="badge" data-zh="即時探究狀態" data-en="Realtime Summary">即時探究狀態</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="note-box" id="analytics-ai-teaching-note">
+                                <!-- Generated dynamically based on the current active scenario -->
+                            </div>
+                            <div class="note-actions mt-3">
+                                <button id="btn-regenerate-note" class="btn btn-secondary btn-sm">
+                                    <span>🔄</span> <span data-zh="重新生成引導問題" data-en="Regenerate Reflection">重新生成引導問題</span>
+                                </button>
+                                <button id="btn-copy-note" class="btn btn-secondary btn-sm">
+                                    <span>📋</span> <span data-zh="複製教學提示" data-en="Copy Teaching Note">複製教學提示</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right sidebar: Student dialogue log inspector -->
+                <div class="analytics-sidebar-panel glass-card">
+                    <div class="section-title">
+                        <div class="icon">📊</div>
+                        <h3 data-zh="對話歷程與佐證細節檢視" data-en="Dialogue Log Inspector">對話歷程與佐證細節檢視</h3>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="select-analytics-student" class="form-label" data-zh="選擇要檢視的學生學習歷程" data-en="Select Student to Review">選擇要檢視的學生學習歷程</label>
+                        <select id="select-analytics-student" class="form-input">
+                            <option value="stu_01">陳小明 (Xiao-Ming Chen) - 探索進度: 18m</option>
+                            <option value="stu_02">林志強 (Zhi-Qiang Lin) - 探索進度: 24m</option>
+                            <option value="stu_03">張美玲 (Mei-Ling Zhang) - 探索進度: 15m</option>
+                            <option value="stu_04">王大同 (Da-Tong Wang) - 探索進度: 21m</option>
+                        </select>
+                    </div>
+
+                    <div class="dialogue-inspector-tabs">
+                        <button id="btn-inspector-tab-chat" class="inspector-tab-btn active" data-tab="chat">對話歷程</button>
+                        <button id="btn-inspector-tab-report" class="inspector-tab-btn" data-tab="report">學生的報告</button>
+                    </div>
+
+                    <div id="inspector-tab-content-chat" class="inspector-tab-content active">
+                        <div class="inspector-chat-log" id="analytics-chat-log-display">
+                            <!-- Populated with chosen student's dialogues -->
+                        </div>
+                    </div>
+                    
+                    <div id="inspector-tab-content-report" class="inspector-tab-content">
+                        <div class="inspector-report-view">
+                            <h5 id="inspector-report-title">綠溪庄水源污染探究分析報告</h5>
+                            <blockquote class="report-cite-count" id="inspector-report-meta">已使用線索: 3 | 課文證據引用: 3</blockquote>
+                            <div class="report-content" id="inspector-report-body">
+                                <!-- Populated with student final response -->
+                            </div>
+                            <div class="report-cited-evidence" id="inspector-report-evidence-list">
+                                <!-- Citations showing paragraphs -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============================================== -->
+    <!-- GLOBAL MODALS & DIALOGS                        -->
+    <!-- ============================================== -->
+
+    <!-- API Key Settings Modal -->
+    <div id="modal-settings" class="modal-overlay hidden">
+        <div class="modal-card glass-card">
+            <div class="modal-header">
+                <h3 data-zh="⚙️ AI 協同設計助手設定" data-en="⚙️ AI Design Assistant Settings">⚙️ AI 協同設計助手設定</h3>
+                <button id="btn-close-settings" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="desc" data-zh="TextQuest AI 預設使用高度擬真之模擬 AI，亦支援介接真實 API。若您希望使用線上大語言模型，請在此輸入金鑰：" data-en="TextQuest AI operates in high-fidelity mock mode by default. To connect live LLMs for parsing and editing new custom texts, please enter your keys here.">TextQuest AI 預設使用高度擬真之模擬 AI，亦支援介接真實 API。若您希望使用線上大語言模型，請在此輸入金鑰：</p>
+                
+                <div class="form-group mt-3">
+                    <label for="input-gemini-key" class="form-label">Gemini API Key</label>
+                    <input type="password" id="input-gemini-key" class="form-input" placeholder="AIzaSy...">
+                    <span class="input-helper"><span data-zh="（推薦）使用進階大型語言模型，提供精確的文本分析與動態 Bounded NPC 對話。" data-en="Recommended. Provides deep text analysis and dynamic bounded dialogue.">（推薦）使用進階大型語言模型，提供精確的文本分析與動態 Bounded NPC 對話。</span></span>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="input-openai-key" class="form-label">OpenAI API Key</label>
+                    <input type="password" id="input-openai-key" class="form-input" placeholder="sk-proj-...">
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="select-llm-model" class="form-label" data-zh="選擇使用的 AI 模型" data-en="Select Active LLM Model">選擇使用的 AI 模型</label>
+                    <select id="select-llm-model" class="form-input">
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (預設：速度極快且對話精準)</option>
+                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (具備深度推理能力)</option>
+                        <option value="gpt-4o-mini">GPT-4o-Mini</option>
+                        <option value="gpt-4o">GPT-4o</option>
+                    </select>
+                </div>
+                
+                <div class="api-status-check-row mt-4">
+                    <button id="btn-test-api" class="btn btn-secondary btn-sm" data-zh="測試 API 連線" data-en="Test API Connection">測試 API 連線</button>
+                    <span id="api-test-status" class="api-status-label neutral" data-zh="尚未測試" data-en="Not Checked">尚未測試</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-save-settings" class="btn btn-primary" data-zh="儲存設定" data-en="Save Settings">儲存設定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NPC / Location Drawer / Editor Modal -->
+    <div id="modal-npc-editor" class="modal-overlay hidden">
+        <div class="modal-card glass-card wide-modal">
+            <div class="modal-header">
+                <h3 id="npc-editor-title">👤 <span data-zh="編輯 AI 角色屬性" data-en="Edit NPC Attributes">編輯 AI 角色屬性</span></h3>
+                <button id="btn-close-npc-editor" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body editor-scroll-body">
+                <div class="npc-editor-grid">
+                    <!-- Column 1: Basic Info -->
+                    <div class="npc-editor-col">
+                        <h4 class="col-title" data-zh="基本資料" data-en="Basic Profile">基本資料</h4>
+                        
+                        <input type="hidden" id="edit-npc-id">
+                        <input type="hidden" id="edit-npc-loc-id">
+                        
+                        <div class="form-group">
+                            <label for="edit-npc-name" class="form-label" data-zh="角色名稱" data-en="NPC Name">角色名稱</label>
+                            <input type="text" id="edit-npc-name" class="form-input">
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="edit-npc-avatar" class="form-label" data-zh="角色頭像 (Emoji)" data-en="Avatar Emoji">角色頭像 (Emoji)</label>
+                                <input type="text" id="edit-npc-avatar" class="form-input" placeholder="例如：👴, 👩, 🧑">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-npc-role-badge" class="form-label" data-zh="角色身份/頭銜" data-en="Role / Title">角色身份/頭銜</label>
+                                <input type="text" id="edit-npc-role-badge" class="form-input" placeholder="例如：老農夫, 工廠代表">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-npc-description" class="form-label" data-zh="角色背景與生平描述" data-en="NPC Bio Description">角色背景與生平描述</label>
+                            <textarea id="edit-npc-description" class="form-input text-area" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-npc-voice" class="form-label" data-zh="對話風格與說話口吻口氣" data-en="Dialogue Style & Tone">對話風格與說話口吻口氣</label>
+                                <input type="text" id="edit-npc-voice" class="form-input" placeholder="例如：口氣溫和、常用感嘆句...">
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Pedagogical Framing (Crucial Paper concepts) -->
+                    <div class="npc-editor-col border-left">
+                        <h4 class="col-title highlight-title" data-zh="🎯 教學引導提示與回答限制" data-en="🎯 Pedagogical Scaffolding & Constraints">🎯 教學引導提示與回答限制</h4>
+                        
+                        <div class="form-group">
+                            <label for="edit-npc-boundary" class="form-label">
+                                <span data-zh="知識邊界限制 (Knowledge Boundary)" data-en="Knowledge Boundary">知識邊界限制 (Knowledge Boundary)</span>
+                                <span class="badge badge-warning" data-zh="嚴格依據文本" data-en="Strict Grounding">嚴格依據文本</span>
+                            </label>
+                            <textarea id="edit-npc-boundary" class="form-input text-area" rows="2" placeholder="設定該 NPC 知道的資訊範圍，防止產生超出課文的幻覺..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-npc-clue-name" class="form-label" data-zh="解鎖線索名稱" data-en="Clue Object Name">解鎖線索名稱</label>
+                            <input type="text" id="edit-npc-clue-name" class="form-input" placeholder="例如：水資源變遷調查報告">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-npc-clue-text" class="form-label" data-zh="線索核心內容" data-en="Clue Core Content to Disclose">線索核心內容</label>
+                            <textarea id="edit-npc-clue-text" class="form-input text-area" rows="3" placeholder="當學生問對問題時，NPC 會披露的線索核心內容..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-npc-rule" class="form-label">
+                                <span data-zh="透露線索規則 (Disclosure Rule)" data-en="Disclosure Rule">透露線索規則 (Disclosure Rule)</span>
+                                <span class="badge badge-accent" data-zh="引導模式" data-en="Scaffold">引導模式</span>
+                            </label>
+                            <input type="text" id="edit-npc-rule" class="form-input" placeholder="例如：學生需問出關鍵字「農田」才給線索...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grounded Text Selection in Editor -->
+                <div class="npc-editor-source-linkage mt-4">
+                    <h4 data-zh="🔗 課文佐證段落 (Grounded Evidences)" data-en="🔗 Grounded Evidences in Source Text">🔗 課文佐證段落 (Grounded Evidences)</h4>
+                    <p class="desc" data-zh="原始文本中的哪些段落支援了該 NPC 的發言？請將它們建立連結，以便在學生介面顯示可視化引用。" data-en="Which parts of the original text support this NPC's knowledge? Link them to enable visual citations.">原始文本中的哪些段落支援了該 NPC 的發言？請將它們建立連結，以便在學生介面顯示可視化引用。</p>
+                    
+                    <div class="editor-grounding-selector" id="editor-text-lines-selector">
+                        <!-- Shows numbered sentences from text with checkmark checkboxes to associate with NPC -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-delete-npc" class="btn btn-danger" style="margin-right: auto;" data-zh="❌ 刪除角色" data-en="❌ Delete NPC">❌ 刪除角色</button>
+                <button id="btn-save-npc" class="btn btn-primary" data-zh="儲存角色修改" data-en="Save NPC Changes">儲存角色修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Binding Clue Dialog for student workspace -->
+    <div id="modal-bind-evidence" class="modal-overlay hidden">
+        <div class="modal-card glass-card">
+            <div class="modal-header">
+                <h3 data-zh="🔗 建立選取句子與線索的佐證連結" data-en="🔗 Link Highlighted Sentence to Clue">🔗 建立選取句子與線索的佐證連結</h3>
+                <button id="btn-close-bind-modal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="binding-preview-highlight">
+                    <span class="label" data-zh="📌 目前選取的課文句子" data-en="📌 Highlighted Source Sentence">📌 目前選取的課文句子</span>
+                    <blockquote id="bind-selected-text-preview">選取的課文段落內容會在此顯示...</blockquote>
+                </div>
+                
+                <div class="form-group mt-3">
+                    <label for="select-bind-clue" class="form-label" data-zh="📌 選擇要關聯的已收集線索" data-en="📌 Select the Collected Clue to Align">📌 選擇要關聯的已收集線索</label>
+                    <select id="select-bind-clue" class="form-input">
+                        <!-- Options generated based on collected clues -->
+                    </select>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="input-bind-reasoning" class="form-label" data-zh="📝 論證理由與推論筆記" data-en="📝 Evidence Reasoning / Note">📝 論證理由與推論筆記</label>
+                    <textarea id="input-bind-reasoning" class="form-input text-area" rows="3" placeholder="請解釋為什麼這段課文內容可以作為該線索的佐證證據..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-submit-binding" class="btn btn-primary" data-zh="確定建立連結" data-en="Create Connection">確定建立連結</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Zoom Dialog -->
+    <div id="modal-image-zoom" class="modal-overlay hidden">
+        <div class="modal-card glass-card image-zoom-card" style="max-width: 700px; padding: 16px;">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 12px;">
+                <h3 data-zh="🗺️ 綠溪庄地圖" data-en="🗺️ Green Creek Village Map">🗺️ 綠溪庄地圖</h3>
+                <button id="btn-close-zoom-modal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body" style="display: flex; justify-content: center; align-items: center;">
+                <img src="assets/green_creek_map.png" alt="Green Creek Village Map" style="width: 100%; height: auto; max-height: 70vh; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); object-fit: contain;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Web Application Logic scripts -->
+    <script src="js/ai.js?v=1.0.5"></script>
+    <script src="js/teacher.js?v=1.0.5"></script>
+    <script src="js/student.js?v=1.0.5"></script>
+    <script src="js/analytics.js?v=1.0.5"></script>
+    <script src="js/app.js?v=1.0.5"></script>
+</body>
+</html>
