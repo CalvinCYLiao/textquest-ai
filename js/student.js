@@ -297,12 +297,59 @@ window.StudentModule = {
         }, 1000);
     },
 
-    // 3. Render Exploration Map locations buttons
+    // 3. Render Exploration Map locations buttons & Interactive Markers
     renderMap() {
         const grid = document.getElementById('student-map-grid');
         grid.innerHTML = '';
         const isZh = TextQuest.lang === 'zh';
 
+        // Update the sidebar map image
+        const panelMapImg = document.getElementById('student-panel-map-image');
+        if (panelMapImg) {
+            panelMapImg.src = TextQuest.activity.mapImage || 'assets/green_creek_map.png';
+        }
+
+        // Render Interactive Markers on the map
+        const markersContainer = document.getElementById('student-map-markers');
+        if (markersContainer) {
+            markersContainer.innerHTML = '';
+            TextQuest.activity.locations.forEach((loc, idx) => {
+                const coords = this.getLocationCoordinates(TextQuest.activity.id, loc.id, idx);
+                
+                loc.npcs.forEach(npcId => {
+                    const npc = TextQuest.activity.npcs[npcId];
+                    if (npc) {
+                        const pin = document.createElement('div');
+                        pin.className = `map-marker-pin ${TextQuest.student.currentNpcId === npcId ? 'active' : ''}`;
+                        pin.style.position = 'absolute';
+                        pin.style.left = `${coords.x}%`;
+                        pin.style.top = `${coords.y}%`;
+                        pin.style.transform = 'translate(-50%, -50%)';
+                        pin.style.pointerEvents = 'auto';
+                        pin.style.cursor = 'pointer';
+                        
+                        const isClueCollected = TextQuest.student.collectedClueIds.includes(npc.clueId);
+                        const glowStyle = !isClueCollected ? 'border: 2px solid var(--accent-warning); box-shadow: 0 0 10px var(--accent-warning);' : '';
+                        
+                        pin.innerHTML = `
+                            <div class="marker-avatar" style="${glowStyle}">${escapeHtml(npc.avatar)}</div>
+                            <div class="marker-label">${escapeHtml(npc.name.split(' ')[0])}</div>
+                        `;
+                        
+                        pin.onclick = (e) => {
+                            e.stopPropagation();
+                            if (TextQuest.student.currentLocationId !== loc.id || TextQuest.student.currentNpcId !== npcId) {
+                                this.travelAndSelectNpc(loc.id, npcId);
+                            }
+                        };
+                        
+                        markersContainer.appendChild(pin);
+                    }
+                });
+            });
+        }
+
+        // Render Side List Cards
         TextQuest.activity.locations.forEach(loc => {
             const btn = document.createElement('button');
             btn.className = 'location-student-btn glass-card';
@@ -341,12 +388,72 @@ window.StudentModule = {
         });
     },
 
+    // Handcrafted coordinates to align with our beautiful generated visual map illustrations!
+    getLocationCoordinates(activityId, locId, index) {
+        const coordinates = {
+            activity_riverbank: {
+                loc_square: { x: 22, y: 38 },
+                loc_factory: { x: 52, y: 38 },
+                loc_riverbank: { x: 80, y: 68 },
+                loc_office: { x: 50, y: 75 }
+            },
+            activity_soil: {
+                loc_field: { x: 18, y: 62 },
+                loc_electroplate: { x: 52, y: 38 },
+                loc_lab: { x: 82, y: 70 }
+            },
+            activity_fake_news: {
+                loc_granny_house: { x: 20, y: 72 },
+                loc_farm_stand: { x: 52, y: 45 },
+                loc_fda_office: { x: 80, y: 72 }
+            },
+            activity_bullying: {
+                loc_hallway: { x: 18, y: 35 },
+                loc_classroom: { x: 50, y: 40 },
+                loc_counselor_room: { x: 80, y: 65 }
+            },
+            activity_energy: {
+                loc_pond: { x: 18, y: 65 },
+                loc_solar: { x: 52, y: 50 },
+                loc_tower: { x: 80, y: 60 }
+            },
+            activity_ethics: {
+                loc_academic_office: { x: 18, y: 35 },
+                loc_library: { x: 50, y: 45 },
+                loc_classroom_ethics: { x: 80, y: 65 }
+            },
+            activity_taoyuan_ponds: {
+                loc_pond_site: { x: 20, y: 55 },
+                loc_solar_hq: { x: 52, y: 32 },
+                loc_water_irr: { x: 80, y: 70 }
+            },
+            activity_taoyuan_pollution: {
+                loc_canal_branch: { x: 20, y: 62 },
+                loc_factory_gate: { x: 52, y: 42 },
+                loc_epb_office: { x: 80, y: 70 }
+            },
+            activity_taoyuan_drought: {
+                loc_shimen_dam: { x: 20, y: 55 },
+                loc_dry_farm: { x: 52, y: 52 },
+                loc_tech_park: { x: 80, y: 62 }
+            }
+        };
+
+        if (coordinates[activityId] && coordinates[activityId][locId]) {
+            return coordinates[activityId][locId];
+        }
+
+        // Generic fallback distribution for custom activities based on index
+        if (index === 0) return { x: 20, y: 60 };
+        if (index === 1) return { x: 50, y: 35 };
+        return { x: 80, y: 65 };
+    },
+
     // Compelling travel visual transition
     travelToLocation(locId) {
         const overlay = document.getElementById('travel-overlay');
         overlay.classList.remove('hidden');
         
-        // Travel duration of 1.2 seconds for dramatic effect
         setTimeout(() => {
             overlay.classList.add('hidden');
             TextQuest.student.currentLocationId = locId;
@@ -358,6 +465,27 @@ window.StudentModule = {
             
             this.renderMap();
             this.renderLocationSplit();
+            this.updateProgressionFlow();
+        }, 1200);
+    },
+
+    // Travel to location and directly select NPC
+    travelAndSelectNpc(locId, npcId) {
+        const overlay = document.getElementById('travel-overlay');
+        overlay.classList.remove('hidden');
+        
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            TextQuest.student.currentLocationId = locId;
+            TextQuest.student.currentNpcId = npcId;
+            
+            // Show interaction box
+            document.getElementById('empty-interaction-state').classList.add('hidden');
+            document.getElementById('active-location-container').classList.remove('hidden');
+            
+            this.renderMap();
+            this.renderLocationSplit();
+            this.openNpcChat(npcId);
             this.updateProgressionFlow();
         }, 1200);
     },

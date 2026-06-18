@@ -2595,3 +2595,81 @@ p {
     font-size: 1.15rem;
     font-weight: 700;
 }
+
+/* Interactive Map Markers Styling */
+.student-interactive-map-wrapper {
+    position: relative;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    background: #0d1117;
+    aspect-ratio: 1 / 1;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+.student-panel-map-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.student-map-markers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+.map-marker-pin {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform var(--transition-fast) ease, filter var(--transition-fast) ease;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+}
+.map-marker-pin:hover {
+    transform: translate(-50%, -50%) scale(1.18) !important;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6)) brightness(1.15);
+    z-index: 10;
+}
+.map-marker-pin.active {
+    filter: drop-shadow(0 0 10px var(--accent-secondary));
+}
+.map-marker-pin.active .marker-avatar {
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 10px var(--accent-secondary);
+    animation: marker-pulse 1.5s infinite alternate;
+}
+.marker-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.3rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: all var(--transition-fast) ease;
+}
+.marker-label {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(2px);
+    color: var(--text-main);
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+    font-weight: 500;
+}
+
+@keyframes marker-pulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.08); }
+}

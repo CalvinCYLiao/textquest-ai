@@ -445,10 +445,10 @@
                 <div class="student-game-grid">
                     
                     <!-- Left: Navigation Map & Locations -->
-                    <div class="student-map-panel glass-card">
-                        <div class="panel-header">
+                    <div class="student-map-panel glass-card" style="display: flex; flex-direction: column; height: 100%; max-height: calc(100vh - 120px); box-sizing: border-box;">
+                        <div class="panel-header" style="flex-shrink: 0; margin-bottom: 8px;">
                             <h3 data-zh="🧭 探究場景地圖" data-en="🧭 Storyworld Map">🧭 探究場景地圖</h3>
-                            <span class="sub" data-zh="選擇要探索的場景" data-en="Travel to locations">選擇要探索的場景</span>
+                            <span class="sub" data-zh="點擊地圖角色圖示或下方卡片探索" data-en="Click NPC icons or cards to travel">點擊地圖角色圖示或下方卡片探索</span>
                         </div>
                         
                         <!-- Travel visual transition layer -->
@@ -459,7 +459,15 @@
                             </div>
                         </div>
 
-                        <div id="student-map-grid" class="student-map-grid">
+                        <!-- Interactive Visual Map Container -->
+                        <div class="student-interactive-map-wrapper">
+                            <img id="student-panel-map-image" src="assets/green_creek_map.png" alt="Interactive Map" class="student-panel-map-image">
+                            <div id="student-map-markers" class="student-map-markers">
+                                <!-- Dynamic absolute-positioned markers will be placed here -->
+                            </div>
+                        </div>
+
+                        <div id="student-map-grid" class="student-map-grid" style="flex: 1; overflow-y: auto;">
                             <!-- Visual Location Cards generated dynamically -->
                         </div>
                     </div>
