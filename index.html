@@ -444,8 +444,65 @@
                 <!-- Main Active Screen -->
                 <div class="student-game-grid">
                     
-                    <!-- Left: Navigation Map & Locations -->
-                    <div class="student-map-panel glass-card">
+                    <!-- Left: Evidence Binder & Synthesis Tabbed Panel -->
+                    <div class="student-binder-panel glass-card" style="display: flex; flex-direction: column; height: 100%; max-height: calc(100vh - 120px); box-sizing: border-box; overflow: hidden;">
+                        <div class="tabs-header" style="flex-shrink: 0; display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
+                            <button class="tab-btn active" data-tab="evidence" style="flex: 1; text-align: center; justify-content: center; padding: 8px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                <span>💼</span>
+                                <span data-zh="證據收集箱" data-en="Evidence Binder">證據收集箱</span>
+                                <span class="badge" id="binder-count-badge" style="margin-left: 4px;">0</span>
+                            </button>
+                            <button class="tab-btn" data-tab="synthesis" style="flex: 1; text-align: center; justify-content: center; padding: 8px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                <span>📝</span>
+                                <span data-zh="撰寫報告" data-en="Write Report">撰寫報告</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Tab 1: Evidence Binder -->
+                        <div id="tab-content-evidence" class="tab-content active" style="flex: 1; flex-direction: column; overflow: hidden;">
+                            <div class="panel-header" style="padding-bottom: 4px; margin-bottom: 4px; border-bottom: none; flex-shrink: 0;">
+                                <span class="sub" data-zh="你收集到的 NPC 角色線索與已綁定的課文證據" data-en="Collected NPC clues and grounded evidence connections">你收集到的 NPC 角色線索與已綁定的課文證據</span>
+                            </div>
+                            <div class="binder-grid" id="binder-clues-grid" style="flex: 1; overflow-y: auto; margin-top: 4px;">
+                                <!-- Collected Clue Cards and their linked evidence mapping -->
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Synthesis Report -->
+                        <div id="tab-content-synthesis" class="tab-content" style="flex: 1; flex-direction: column; overflow: hidden;">
+                            <div class="synthesis-editor-container" style="flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 4px;">
+                                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
+                                    <label class="form-label" style="font-size: 0.75rem; font-weight: 600;" data-zh="報告標題" data-en="Report Title">報告標題</label>
+                                    <input type="text" id="synth-input-title" class="form-input" value="" placeholder="請輸入你的成果報告標題..." style="width: 100%; box-sizing: border-box; font-size: 0.8rem; padding: 6px;">
+                                </div>
+                                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
+                                    <label class="form-label" style="font-size: 0.75rem; font-weight: 600;" data-zh="活動產出目標" data-en="Activity Goal">活動產出目標</label>
+                                    <blockquote class="synthesis-goal-reminder" id="synth-product-reminder" style="margin: 0; padding: 8px; background: var(--bg-tertiary); border-left: 3px solid var(--accent-primary); border-radius: 4px; font-size: 0.72rem; line-height: 1.4; color: var(--text-muted);"></blockquote>
+                                </div>
+                                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 150px;">
+                                    <label class="form-label" style="font-size: 0.75rem; font-weight: 600;" data-zh="綜合論證報告內文" data-en="Synthesis Report Body">綜合論證報告內文</label>
+                                    <textarea id="synth-input-body" class="form-input text-area" rows="6" placeholder="請在此撰寫你的整合探究報告，整合你從各NPC處收集到的證據與課文內容，進行邏輯嚴密的論證分析。" style="width: 100%; box-sizing: border-box; flex: 1; resize: vertical; min-height: 120px; font-size: 0.8rem; padding: 8px;"></textarea>
+                                </div>
+                                
+                                <div class="synthesis-evidence-sidebar" style="margin-top: 4px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                                    <h4 style="font-size: 0.75rem; font-weight: 600; margin-bottom: 2px;" data-zh="📌 引用已收集的線索（點擊插入）" data-en="📌 Cite Collected Clues (Click to insert)">📌 引用已收集的線索（點擊插入）</h4>
+                                    <p class="desc" style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 6px;" data-zh="點擊下方線索將其以格式化文字插入至報告游標處。" data-en="Click clues below to insert formatted citation at cursor.">點擊下方線索將其以格式化文字插入至報告游標處。</p>
+                                    <div class="synthesis-citation-list" id="synthesis-citation-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 150px; overflow-y: auto;">
+                                        <!-- Cards of gathered clues -->
+                                    </div>
+                                </div>
+
+                                <div class="synth-actions" style="display: flex; gap: 8px; margin-top: 6px; margin-bottom: 6px; flex-shrink: 0;">
+                                    <button id="btn-save-draft" class="btn btn-secondary" style="flex: 1; font-size: 0.75rem; padding: 6px 10px;" data-zh="儲存草稿" data-en="Save Draft">儲存草稿</button>
+                                    <button id="btn-submit-report" class="btn btn-success" style="flex: 1; font-size: 0.75rem; padding: 6px 10px;">
+                                        <span>📤</span> <span data-zh="提交報告" data-en="Submit Report">提交報告</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <!-- Middle: Navigation Map & Locations -->
+                    <div class="student-map-panel glass-card" style="display: flex; flex-direction: column; height: 100%; max-height: calc(100vh - 120px); box-sizing: border-box;">
                         <div class="panel-header" style="flex-shrink: 0; margin-bottom: 8px;">
                             <h3 data-zh="🧭 探究場景地圖" data-en="🧭 Storyworld Map">🧭 探究場景地圖</h3>
                             <span class="sub" data-zh="點擊地圖角色圖示或下方列表探索" data-en="Click NPC icons or list below to travel">點擊地圖角色圖示或下方列表探索</span>
@@ -552,7 +609,7 @@
                         </div>
                     </div>
 
-                    <!-- Middle: Inquiry Text (Center Stage) -->
+                    <!-- Right: Inquiry Text (Center Stage) -->
                     <div class="student-middle-panel" style="display: flex; flex-direction: column; height: 100%; max-height: calc(100vh - 120px); box-sizing: border-box;">
                         <!-- Inquiry Text Reader -->
                         <div class="student-reader-section glass-card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; height: 100%; padding: 16px;">
@@ -578,64 +635,7 @@
                         </div>
                     </div>
 
-                    <!-- Right: Evidence Binder & Synthesis Tabbed Panel -->
-                    <div class="student-binder-panel glass-card" style="display: flex; flex-direction: column; height: 100%; max-height: calc(100vh - 120px); box-sizing: border-box; overflow: hidden;">
-                        <div class="tabs-header" style="flex-shrink: 0; display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
-                            <button class="tab-btn active" data-tab="evidence" style="flex: 1; text-align: center; justify-content: center; padding: 8px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                                <span>💼</span>
-                                <span data-zh="證據收集箱" data-en="Evidence Binder">證據收集箱</span>
-                                <span class="badge" id="binder-count-badge" style="margin-left: 4px;">0</span>
-                            </button>
-                            <button class="tab-btn" data-tab="synthesis" style="flex: 1; text-align: center; justify-content: center; padding: 8px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                                <span>📝</span>
-                                <span data-zh="撰寫報告" data-en="Write Report">撰寫報告</span>
-                            </button>
-                        </div>
-                        
-                        <!-- Tab 1: Evidence Binder -->
-                        <div id="tab-content-evidence" class="tab-content active" style="flex: 1; flex-direction: column; overflow: hidden;">
-                            <div class="panel-header" style="padding-bottom: 4px; margin-bottom: 4px; border-bottom: none; flex-shrink: 0;">
-                                <span class="sub" data-zh="你收集到的 NPC 角色線索與已綁定的課文證據" data-en="Collected NPC clues and grounded evidence connections">你收集到的 NPC 角色線索與已綁定的課文證據</span>
-                            </div>
-                            <div class="binder-grid" id="binder-clues-grid" style="flex: 1; overflow-y: auto; margin-top: 4px;">
-                                <!-- Collected Clue Cards and their linked evidence mapping -->
-                            </div>
-                        </div>
-
-                        <!-- Tab 2: Synthesis Report -->
-                        <div id="tab-content-synthesis" class="tab-content" style="flex: 1; flex-direction: column; overflow: hidden;">
-                            <div class="synthesis-editor-container" style="flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 4px;">
-                                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label class="form-label" style="font-size: 0.75rem; font-weight: 600;" data-zh="報告標題" data-en="Report Title">報告標題</label>
-                                    <input type="text" id="synth-input-title" class="form-input" value="" placeholder="請輸入你的成果報告標題..." style="width: 100%; box-sizing: border-box; font-size: 0.8rem; padding: 6px;">
-                                </div>
-                                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label class="form-label" style="font-size: 0.75rem; font-weight: 600;" data-zh="活動產出目標" data-en="Activity Goal">活動產出目標</label>
-                                    <blockquote class="synthesis-goal-reminder" id="synth-product-reminder" style="margin: 0; padding: 8px; background: var(--bg-tertiary); border-left: 3px solid var(--accent-primary); border-radius: 4px; font-size: 0.72rem; line-height: 1.4; color: var(--text-muted);"></blockquote>
-                                </div>
-                                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 150px;">
-                                    <label class="form-label" style="font-size: 0.75rem; font-weight: 600;" data-zh="綜合論證報告內文" data-en="Synthesis Report Body">綜合論證報告內文</label>
-                                    <textarea id="synth-input-body" class="form-input text-area" rows="6" placeholder="請在此撰寫你的整合探究報告，整合你從各NPC處收集到的證據與課文內容，進行邏輯嚴密的論證分析。" style="width: 100%; box-sizing: border-box; flex: 1; resize: vertical; min-height: 120px; font-size: 0.8rem; padding: 8px;"></textarea>
-                                </div>
-                                
-                                <div class="synthesis-evidence-sidebar" style="margin-top: 4px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
-                                    <h4 style="font-size: 0.75rem; font-weight: 600; margin-bottom: 2px;" data-zh="📌 引用已收集的線索（點擊插入）" data-en="📌 Cite Collected Clues (Click to insert)">📌 引用已收集的線索（點擊插入）</h4>
-                                    <p class="desc" style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 6px;" data-zh="點擊下方線索將其以格式化文字插入至報告游標處。" data-en="Click clues below to insert formatted citation at cursor.">點擊下方線索將其以格式化文字插入至報告游標處。</p>
-                                    <div class="synthesis-citation-list" id="synthesis-citation-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 150px; overflow-y: auto;">
-                                        <!-- Cards of gathered clues -->
-                                    </div>
-                                </div>
-
-                                <div class="synth-actions" style="display: flex; gap: 8px; margin-top: 6px; margin-bottom: 6px; flex-shrink: 0;">
-                                    <button id="btn-save-draft" class="btn btn-secondary" style="flex: 1; font-size: 0.75rem; padding: 6px 10px;" data-zh="儲存草稿" data-en="Save Draft">儲存草稿</button>
-                                    <button id="btn-submit-report" class="btn btn-success" style="flex: 1; font-size: 0.75rem; padding: 6px 10px;">
-                                        <span>📤</span> <span data-zh="提交報告" data-en="Submit Report">提交報告</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> <!-- Closes student-game-grid -->
+                    </div> <!-- Closes student-game-grid -->
             </div> <!-- Closes student-workspace -->
             
             <!-- Hidden dummy elements to maintain compatibility with legacy event bindings -->
