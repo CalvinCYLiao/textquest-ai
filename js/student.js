@@ -1065,6 +1065,24 @@ window.StudentModule = {
                 `【Inquiry Evaluation Report - Score: ${score}/100】\nOutstanding investigation on "${title}"! You collected ${colCount} academic integrity clues and mapped ${linkCount} grounding connections. Your synthesis clearly distinguishes between cognitive AI assistance (prompt logs) and direct plagiarism.\n\nCritique Suggestion: Consider drafting a set of "AI Co-writing Guidelines" for your department to encourage transparent use of tech while upholding academic honesty.`;
         }
 
+        if (activityId === 'activity_taoyuan_ponds') {
+            return isZh ?
+                `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！你順利完成了《${title}》的調查！您成功訪談了生態志工、光電經理與水利代表，收集了 ${colCount} 個關於綠能與生態衝突的關鍵線索，並建立了 ${linkCount} 個證據連結。您的報告深入探討了「水面型光電板阻擋陽光」對台灣萍蓬草的生存威脅，以及對冬候鳥棲地的空間影響。\n\n建議：建議在報告結尾，結合生態專家提出的「生態敏感地圖」與「高透光模組」方案，為市政府起草一份具體可行的『綠能與生態共生指引』。` :
+                `【Inquiry Evaluation Report - Score: ${score}/100】\nOutstanding investigation on "${title}"! You collected ${colCount} eco-sustainability clues and linked ${linkCount} evidence grounding lines. Your synthesis clearly highlights how floating solar panels reduce light penetration for Taiwan water lilies and restrict wintering bird foraging grounds.\n\nCritique Suggestion: To strengthen your report, combine the project manager's compliance manual and the volunteer's logs to draft a "Pond Solar Ecological Symbiosis Guideline" for local agencies.`;
+        }
+
+        if (activityId === 'activity_taoyuan_pollution') {
+            return isZh ?
+                `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！你順利完成了《${title}》的調查！您收集了 ${colCount} 個大圳水質污染的關鍵證據，並對齊了 ${linkCount} 個課文證據。您成功揪出了化工廠利用深夜雨水溝偷排酸性電鍍廢水（pH低於4.5、銅離子超標三倍）的行為，邏輯推論非常精準！\n\n建議：建議在您的改善建議中，加入針對工業區「水質自動監測網」與「匿名檢舉機制」的探討，以促進桃園大圳灌溉水質的長期安全。` :
+                `【Inquiry Evaluation Report - Score: ${score}/100】\nSuperb deductive work on "${title}"! You gathered ${colCount} pollution clues and established ${linkCount} evidence links. You successfully exposed the factory's midnight bypass dumping of electroplating waste (pH < 4.5, Copper exceeding 3x limit) into the storm drain.\n\nCritique Suggestion: Add suggestions for installing auto-telemetry water monitors and implementing anonymous whistleblowing channels to protect agricultural irrigation.`;
+        }
+
+        if (activityId === 'activity_taoyuan_drought') {
+            return isZh ?
+                `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！你順利完成了《${title}》的調查！您收集了 ${colCount} 個關於極端乾旱水資源分配的線索，並建立了 ${linkCount} 個與課文的證據連結。您的報告出色地對比了「農業停灌休耕補償」與「半導體園區經濟產值」之間的多方立場與利益爭議。\n\n建議：建議進一步探討如何降低桃園大圳目前高達25%的渠道漏水率，並推廣工業回收水再生系統，這能從根本上緩解水庫在旱災時的分配壓力。` :
+                `【Inquiry Evaluation Report - Score: ${score}/100】\nExcellent analysis on "${title}"! You successfully gathered ${colCount} resource clues and mapped ${linkCount} groundings. You balanced the trade-offs between cash-compensated agricultural fallow and semiconductor fab economic ordering contracts during water scarcity.\n\nCritique Suggestion: Expand your thesis by detailing how lining the canals can reduce the 25% seepage rate and proposing industrial water recycling mandates to relieve Shimen Dam's supply stress.`;
+        }
+
         // Generic Fallback
         return isZh ?
             `【探究學習評鑑報告 - 分數: ${score}/100】\n恭喜！您順利完成了關於《${title}》的探究任務！您成功訪談了相關角色並實地進行探索，共收集了 ${colCount} 個關鍵線索，並建立了 ${linkCount} 個文本證據的雙向連結。您的報告架構清晰，能夠立足於客觀事實進行多方視角的理性推論！\n\n建議：建議在撰寫最終報告時，更主動地對比衝突性證據，分析不同說詞背後的動機，這能大幅提升您探究結果的深度與客觀度。` :

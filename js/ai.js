@@ -90,6 +90,48 @@ const OFFLINE_RESPONSES = {
     npc_expert_ai: {
         zh: "我是資訊學院的曾博士。我們使用多種深度學習模型來檢測文字特徵，能夠分析出文本中 AI 的生成機率。如果您問我關於文字『特徵』分析、模型判定的『生成率』數據，或者是檢測『軟體』的運作原理，我會為您出示我們的檢測比對報告表。",
         en: "I am Dr. Tseng from the Computer Science Department. We analyzed the text features using linguistic models. If you ask me about writing style fingerprints, AI generation probability metrics, or the detection detector software, I will present the detection report."
+    },
+    
+    // 7. Taoyuan Ponds
+    npc_volunteer_hsu: {
+        zh: "這座埤塘真的很美，可是現在被蓋上了大片光電板...我真的很擔心水裡的台灣萍蓬草和冬候鳥。如果你問我關於『萍蓬草』的生長狀況、冬候『水鳥』的數量，或是埤塘『生態』受影響的細節，我會把我的觀測筆記拿給你看。",
+        en: "This pond is beautiful, but the new solar installations worry me. I am concerned about the water lilies and migratory birds. Ask me about the water lily growth, migratory birds count, or ecosystem changes to see my observation logs."
+    },
+    npc_company_chang: {
+        zh: "您好！我們公司的水面型光電板是推動清潔電力與減碳的合規工程。如果您想了解我們的發電成效，請問我關於『發電』瓦數、我們使用的『無毒』浮力材料，或是我們的『合規』綠能設計，我會向您出示我們的綠色合規手冊。",
+        en: "Hello! Our floating solar systems generate clean electricity and cut carbon. Ask me about power generation, our non-toxic materials, or green energy compliance to view the handbook."
+    },
+    npc_chief_chen: {
+        zh: "阿彌陀佛，我是灌溉小組長陳伯伯。埤塘是我們大圳灌溉的命脈，但現在光電板底下的水流停滯了。如果你問我關於大圳『水質』、板底地孳生的『青苔』，或是農田『灌溉』影響，我會向您展示我們的水質溶氧量檢測單。",
+        en: "Hello, I am Chief Chen. Ponds are crucial for our canal irrigation, but water flow is now blocked under the panels. Ask me about water quality, algae/moss growth, or crop irrigation to check the dissolved oxygen data sheet."
+    },
+
+    // 8. Taoyuan Canal Pollution
+    npc_farmer_wang: {
+        zh: "唉...我們大圳的水有時候會變成紅褐色，澆菜後菜葉都焦掉了。小調查員，如果你問我關於『蔬菜』的黑斑斑點、大圳水『變色』，或是灌溉渠道『氣味』的細節，我才會把我的菜園受損日記拿給你看。",
+        en: "Sigh... our canal water sometimes turns reddish brown, causing black spots on our crops. Ask me about crop spots, water color changes, or the channel smell to see my damage logs."
+    },
+    npc_worker_lee: {
+        zh: "噓...我是這牆裡的清潔工李叔叔。我不能說太多，但深夜這後門的雨水溝確實很不對勁。如果你問我關於『雨水溝』的廢水、我們在『半夜』的排放，或是水溝裡的白色『泡沫』，我才會偷偷把我記錄的異常排水紀錄交給你。",
+        en: "Shh... I am cleaner Lee. I can't say much, but the storm drain at the back behaves strangely at night. Ask me about storm drains, midnight operations, or chemical foam to read my private logs."
+    },
+    npc_inspector_lin: {
+        zh: "我是環保局的稽查員林哥哥。我們已經在大圳沿線架設了自動化採樣監測儀。如果您詢問我關於雨水管的『檢測』數據、水質的『酸鹼度』（pH值），或是『重金屬』銅離子超標的化驗結果，我會為您解讀化驗報告單。",
+        en: "I am Inspector Lin. We have automated sampling devices along the canal. Ask me about chemical testing, pH acidity levels, or heavy metals contamination to inspect the laboratory reports."
+    },
+
+    // 9. Taoyuan Drought
+    npc_officer_wu: {
+        zh: "我是水資源局的吳科長。面對這場旱災，石門水庫的水情非常危急。如果您想了解我們的水資源調配，請詢問我關於水庫『蓄水量』、大圳老舊渠道的『漏水』率，或者是『水位』調度方案，我會提供我們的水庫調配簡報。",
+        en: "I am Chief Wu from the Water Bureau. Faced with this drought, Shimen Dam's capacity is critically low. Ask me about reservoir storage capacity, canal water leakage, or water levels to review the allocation presentation."
+    },
+    npc_farmer_huang: {
+        zh: "唉，政府因為缺水叫我們大溪農田停灌休耕，雖然有補償，但農民的心血都白費了。如果你問我關於『休耕』的抗議、補償金對『農地』的影響，或是稻田『乾涸』後的土質問題，我會拿我的停灌損失筆記給你看。",
+        en: "Sigh, the fallow orders forced us to stop irrigation. While we get compensations, our hard work is gone. Ask me about fallow protests, farmland damage, or dry cracked soil to check my diary."
+    },
+    npc_manager_tsai: {
+        zh: "你好，我是晶圓廠的蔡廠長。高科技晶圓製程是一天都不能停的，但我們已經極力提高製程回收水利用率。如果您想了解我們廠內的節水科技，請詢問我關於半導體『晶片』產值、國際訂單或是製程『回收』水，我會向您出示水循環說明書。",
+        en: "Hello, Director Tsai here. Semiconductor fabrication cannot stop for a single day, but we work hard to recycle water. Ask me about chip manufacturing, global orders, or recycled water systems to review our recycling manual."
     }
 };
 
