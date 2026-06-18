@@ -9,10 +9,15 @@ window.StudentModule = {
         this.renderActivitySelector();
         
         // Start by showing selector, hiding briefing & workspace
-        document.getElementById('student-activity-selector').classList.remove('hidden');
-        document.getElementById('student-briefing').classList.add('hidden');
-        document.getElementById('student-workspace').classList.add('hidden');
-        document.getElementById('student-success-sheet').classList.add('hidden');
+        const selector = document.getElementById('student-activity-selector');
+        const briefing = document.getElementById('student-briefing');
+        const workspace = document.getElementById('student-workspace');
+        const successSheet = document.getElementById('student-success-sheet');
+        
+        if (selector) selector.classList.remove('hidden');
+        if (briefing) briefing.classList.add('hidden');
+        if (workspace) workspace.classList.add('hidden');
+        if (successSheet) successSheet.classList.add('hidden');
     },
 
     renderActivitySelector() {

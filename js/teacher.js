@@ -12,25 +12,43 @@ window.TeacherModule = {
             this.bindEvents();
             
             // Listen to active input changes once
-            document.getElementById('input-title').addEventListener('input', (e) => {
-                TextQuest.activity.title = e.target.value;
-            });
-            document.getElementById('input-target').addEventListener('input', (e) => {
-                TextQuest.activity.target = e.target.value;
-            });
-            document.getElementById('input-time').addEventListener('input', (e) => {
-                TextQuest.activity.time = parseInt(e.target.value) || 30;
-            });
-            document.getElementById('input-goals').addEventListener('input', (e) => {
-                TextQuest.activity.goals = e.target.value;
-            });
-            document.getElementById('input-product').addEventListener('input', (e) => {
-                TextQuest.activity.product = e.target.value;
-            });
-            document.getElementById('input-source-text').addEventListener('input', (e) => {
-                TextQuest.activity.sourceText = e.target.value;
-                TextQuest.activity.sentences = window.parseSourceTextToSentences(e.target.value);
-            });
+            const inputTitle = document.getElementById('input-title');
+            if (inputTitle) {
+                inputTitle.addEventListener('input', (e) => {
+                    TextQuest.activity.title = e.target.value;
+                });
+            }
+            const inputTarget = document.getElementById('input-target');
+            if (inputTarget) {
+                inputTarget.addEventListener('input', (e) => {
+                    TextQuest.activity.target = e.target.value;
+                });
+            }
+            const inputTime = document.getElementById('input-time');
+            if (inputTime) {
+                inputTime.addEventListener('input', (e) => {
+                    TextQuest.activity.time = parseInt(e.target.value) || 30;
+                });
+            }
+            const inputGoals = document.getElementById('input-goals');
+            if (inputGoals) {
+                inputGoals.addEventListener('input', (e) => {
+                    TextQuest.activity.goals = e.target.value;
+                });
+            }
+            const inputProduct = document.getElementById('input-product');
+            if (inputProduct) {
+                inputProduct.addEventListener('input', (e) => {
+                    TextQuest.activity.product = e.target.value;
+                });
+            }
+            const inputSourceText = document.getElementById('input-source-text');
+            if (inputSourceText) {
+                inputSourceText.addEventListener('input', (e) => {
+                    TextQuest.activity.sourceText = e.target.value;
+                    TextQuest.activity.sentences = window.parseSourceTextToSentences(e.target.value);
+                });
+            }
             
             // Bind Back to Selector button once
             const backBtn = document.getElementById('btn-back-to-teacher-selector');
@@ -40,8 +58,10 @@ window.TeacherModule = {
                     window.saveCustomActivityToStorage();
                     
                     // Return to selector screen
-                    document.getElementById('teacher-studio-workspace').classList.add('hidden');
-                    document.getElementById('teacher-activity-selector').classList.remove('hidden');
+                    const studioWorkspace = document.getElementById('teacher-studio-workspace');
+                    const activitySelector = document.getElementById('teacher-activity-selector');
+                    if (studioWorkspace) studioWorkspace.classList.add('hidden');
+                    if (activitySelector) activitySelector.classList.remove('hidden');
                     this.renderActivitySelector();
                 });
             }
@@ -50,8 +70,34 @@ window.TeacherModule = {
         }
 
         // Show selector by default
-        document.getElementById('teacher-activity-selector').classList.remove('hidden');
-        document.getElementById('teacher-studio-workspace').classList.add('hidden');
+        const activitySelector = document.getElementById('teacher-activity-selector');
+        const studioWorkspace = document.getElementById('teacher-studio-workspace');
+        
+        if (!activitySelector) {
+            console.warn("Teacher activity selector elements missing. This is likely due to browser caching of older HTML templates.");
+            
+            // Show a user-friendly error block recommending hard refresh
+            let errorConsole = document.getElementById('debug-error-console');
+            if (!errorConsole) {
+                errorConsole = document.createElement('div');
+                errorConsole.id = 'debug-error-console';
+                errorConsole.style.cssText = 'position:fixed;bottom:20px;right:20px;max-width:400px;background:rgba(239,68,68,0.95);color:white;padding:16px;border-radius:12px;z-index:99999;font-family:monospace;font-size:12px;box-shadow:0 10px 25px rgba(0,0,0,0.5);border:1px solid #f87171;overflow:auto;max-height:300px;';
+                document.body.appendChild(errorConsole);
+            }
+            
+            // Avoid duplicate messages
+            if (!document.getElementById('cache-warning-box')) {
+                const hint = document.createElement('div');
+                hint.id = 'cache-warning-box';
+                hint.style.cssText = 'background:#f59e0b; color:#fff; padding:12px; margin-top:10px; border-radius:8px; font-family:sans-serif; font-size:13px; line-height:1.5; border:1px solid #d97706; text-shadow:0 1px 2px rgba(0,0,0,0.3);';
+                hint.innerHTML = '⚠️ <strong>偵測到瀏覽器舊網頁結構快取 (Cache Conflict)</strong><br>您的瀏覽器讀取了舊版的網頁結構。請按下 <strong>Cmd + Shift + R</strong> (Mac) 或 <strong>Ctrl + F5</strong> (Windows) 進行強力重新整理 (Hard Refresh) 以啟用完整功能！';
+                errorConsole.appendChild(hint);
+            }
+            return;
+        }
+
+        if (activitySelector) activitySelector.classList.remove('hidden');
+        if (studioWorkspace) studioWorkspace.classList.add('hidden');
         
         this.renderActivitySelector();
     },
@@ -190,170 +236,201 @@ window.TeacherModule = {
         });
 
         // Add Location Button
-        document.getElementById('btn-add-location').onclick = () => {
-            const name = prompt(TextQuest.lang === 'zh' ? '請輸入地點名稱：' : 'Enter location name:', 
-                                TextQuest.lang === 'zh' ? '神秘廢墟' : 'Mysterious Ruins');
-            if (!name) return;
-            const icon = prompt(TextQuest.lang === 'zh' ? '請輸入地點代表 Emoji：' : 'Enter location Emoji:', '🏛️') || '📍';
-            
-            const locId = 'loc_' + Date.now().toString().slice(-6);
-            TextQuest.activity.locations.push({
-                id: locId,
-                icon: icon,
-                name_zh: name,
-                name_en: name,
-                desc_zh: TextQuest.lang === 'zh' ? '一個全新設計的故事探索點。' : 'A newly configured story location.',
-                desc_en: 'A newly configured story location.',
-                npcs: [],
-                clues: []
-            });
-            this.renderLocations();
-        };
+        const btnAddLoc = document.getElementById('btn-add-location');
+        if (btnAddLoc) {
+            btnAddLoc.onclick = () => {
+                const name = prompt(TextQuest.lang === 'zh' ? '請輸入地點名稱：' : 'Enter location name:', 
+                                    TextQuest.lang === 'zh' ? '神秘廢墟' : 'Mysterious Ruins');
+                if (!name) return;
+                const icon = prompt(TextQuest.lang === 'zh' ? '請輸入地點代表 Emoji：' : 'Enter location Emoji:', '🏛️') || '📍';
+                
+                const locId = 'loc_' + Date.now().toString().slice(-6);
+                TextQuest.activity.locations.push({
+                    id: locId,
+                    icon: icon,
+                    name_zh: name,
+                    name_en: name,
+                    desc_zh: TextQuest.lang === 'zh' ? '一個全新設計的故事探索點。' : 'A newly configured story location.',
+                    desc_en: 'A newly configured story location.',
+                    npcs: [],
+                    clues: []
+                });
+                this.renderLocations();
+            };
+        }
 
         // ==========================================
         // AI DESIGN ASSISTANT TRIGGERS
         // ==========================================
         
         // Step 1: Analyze Text
-        document.getElementById('btn-ai-analyze').onclick = async () => {
-            const text = document.getElementById('input-source-text').value.trim();
-            if (!text) {
-                alert(TextQuest.lang === 'zh' ? '請先輸入或匯入探究文本！' : 'Please input source text first!');
-                return;
-            }
-            
-            this.setAiStatus(true, TextQuest.lang === 'zh' ? '正在深度分析文本衝突、學科概念與潛在迷思...' : 'Analyzing key events, concepts, and misconceptions...');
-            
-            try {
-                const analysis = await window.AIModule.analyzeSourceText(text);
-                this.showAiResultsPanel(analysis);
-                this.activeStep = 2;
-                this.updateStepLockStates();
-            } catch (e) {
-                alert("AI Analysis Error: " + e.message);
-            } finally {
-                this.setAiStatus(false, TextQuest.lang === 'zh' ? '文本分析完成！已解鎖第二步生成。' : 'Analysis complete! Step 2 unlocked.');
-            }
-        };
+        const btnAiAnalyze = document.getElementById('btn-ai-analyze');
+        if (btnAiAnalyze) {
+            btnAiAnalyze.onclick = async () => {
+                const textInput = document.getElementById('input-source-text');
+                const text = textInput ? textInput.value.trim() : '';
+                if (!text) {
+                    alert(TextQuest.lang === 'zh' ? '請先輸入或匯入探究文本！' : 'Please input source text first!');
+                    return;
+                }
+                
+                this.setAiStatus(true, TextQuest.lang === 'zh' ? '正在深度分析文本衝突、學科概念與潛在迷思...' : 'Analyzing key events, concepts, and misconceptions...');
+                
+                try {
+                    const analysis = await window.AIModule.analyzeSourceText(text);
+                    this.showAiResultsPanel(analysis);
+                    this.activeStep = 2;
+                    this.updateStepLockStates();
+                } catch (e) {
+                    alert("AI Analysis Error: " + e.message);
+                } finally {
+                    this.setAiStatus(false, TextQuest.lang === 'zh' ? '文本分析完成！已解鎖第二步生成。' : 'Analysis complete! Step 2 unlocked.');
+                }
+            };
+        }
 
         // Step 2: Generate NPCs & Locations
-        document.getElementById('btn-ai-generate-npcs').onclick = async () => {
-            const text = document.getElementById('input-source-text').value.trim();
-            this.setAiStatus(true, TextQuest.lang === 'zh' ? '正在架構故事世界地圖，規劃 Bounded AI-NPC 角色的知識邊界與披露規則...' : 'Synthesizing storyworld map and planning bounded NPC boundaries...');
-            
-            try {
-                const data = await window.AIModule.generateStoryworld(text, TextQuest.activity.template);
+        const btnAiGenNpcs = document.getElementById('btn-ai-generate-npcs');
+        if (btnAiGenNpcs) {
+            btnAiGenNpcs.onclick = async () => {
+                const textInput = document.getElementById('input-source-text');
+                const text = textInput ? textInput.value.trim() : '';
+                this.setAiStatus(true, TextQuest.lang === 'zh' ? '正在架構故事世界地圖，規劃 Bounded AI-NPC 角色的知識邊界與披露規則...' : 'Synthesizing storyworld map and planning bounded NPC boundaries...');
                 
-                // Load generated items into state
-                TextQuest.activity.locations = [];
-                TextQuest.activity.npcs = {};
-                TextQuest.activity.clues = {};
-                
-                data.locations.forEach(loc => {
-                    TextQuest.activity.locations.push({
-                        id: loc.id,
-                        icon: loc.icon,
-                        name_zh: loc.name,
-                        name_en: loc.name,
-                        desc_zh: loc.desc,
-                        desc_en: loc.desc,
-                        npcs: [],
-                        clues: []
+                try {
+                    const data = await window.AIModule.generateStoryworld(text, TextQuest.activity.template);
+                    
+                    // Load generated items into state
+                    TextQuest.activity.locations = [];
+                    TextQuest.activity.npcs = {};
+                    TextQuest.activity.clues = {};
+                    
+                    data.locations.forEach(loc => {
+                        TextQuest.activity.locations.push({
+                            id: loc.id,
+                            icon: loc.icon,
+                            name_zh: loc.name,
+                            name_en: loc.name,
+                            desc_zh: loc.desc,
+                            desc_en: loc.desc,
+                            npcs: [],
+                            clues: []
+                        });
                     });
-                });
 
-                data.npcs.forEach(npc => {
-                    const l = TextQuest.activity.locations.find(x => x.id === npc.locationId);
-                    if (l) l.npcs.push(npc.id);
+                    data.npcs.forEach(npc => {
+                        const l = TextQuest.activity.locations.find(x => x.id === npc.locationId);
+                        if (l) l.npcs.push(npc.id);
+                        
+                        TextQuest.activity.npcs[npc.id] = {
+                            id: npc.id,
+                            locationId: npc.locationId,
+                            name: npc.name,
+                            avatar: npc.avatar,
+                            roleBadge_zh: npc.roleBadge,
+                            roleBadge_en: npc.roleBadge,
+                            description_zh: npc.description,
+                            description_en: npc.description,
+                            voice_zh: npc.voice,
+                            voice_en: npc.voice,
+                            boundary_zh: npc.boundary,
+                            boundary_en: npc.boundary,
+                            clueName_zh: npc.clueName,
+                            clueName_en: npc.clueName,
+                            clueText_zh: npc.clueText,
+                            clueText_en: npc.clueText,
+                            rule_zh: npc.rule,
+                            rule_en: npc.rule,
+                            evidences: npc.evidences
+                        };
+                        
+                        const clueId = 'clue_' + npc.id.split('_')[1];
+                        TextQuest.activity.clues[clueId] = {
+                            id: clueId,
+                            npcId: npc.id,
+                            name_zh: npc.clueName,
+                            name_en: npc.clueName,
+                            text_zh: npc.clueText,
+                            text_en: npc.clueText,
+                            rule_zh: npc.rule,
+                            rule_en: npc.rule,
+                            evidences: npc.evidences
+                        };
+                        TextQuest.activity.npcs[npc.id].clueId = clueId;
+                    });
                     
-                    TextQuest.activity.npcs[npc.id] = {
-                        id: npc.id,
-                        locationId: npc.locationId,
-                        name: npc.name,
-                        avatar: npc.avatar,
-                        roleBadge_zh: npc.roleBadge,
-                        roleBadge_en: npc.roleBadge,
-                        description_zh: npc.description,
-                        description_en: npc.description,
-                        voice_zh: npc.voice,
-                        voice_en: npc.voice,
-                        boundary_zh: npc.boundary,
-                        boundary_en: npc.boundary,
-                        clueName_zh: npc.clueName,
-                        clueName_en: npc.clueName,
-                        clueText_zh: npc.clueText,
-                        clueText_en: npc.clueText,
-                        rule_zh: npc.rule,
-                        rule_en: npc.rule,
-                        evidences: npc.evidences
-                    };
-                    
-                    const clueId = 'clue_' + npc.id.split('_')[1];
-                    TextQuest.activity.clues[clueId] = {
-                        id: clueId,
-                        npcId: npc.id,
-                        name_zh: npc.clueName,
-                        name_en: npc.clueName,
-                        text_zh: npc.clueText,
-                        text_en: npc.clueText,
-                        rule_zh: npc.rule,
-                        rule_en: npc.rule,
-                        evidences: npc.evidences
-                    };
-                    TextQuest.activity.npcs[npc.id].clueId = clueId;
-                });
-                
-                this.renderLocations();
-                this.activeStep = 3;
-                this.updateStepLockStates();
-            } catch (e) {
-                alert("AI Storyworld Generation Error: " + e.message);
-            } finally {
-                this.setAiStatus(false, TextQuest.lang === 'zh' ? '故事世界生成成功！點擊卡片可微調。已解鎖第三步任務規劃。' : 'Storyworld generated successfully! Click to edit. Step 3 unlocked.');
-            }
-        };
+                    this.renderLocations();
+                    this.activeStep = 3;
+                    this.updateStepLockStates();
+                } catch (e) {
+                    alert("AI Storyworld Generation Error: " + e.message);
+                } finally {
+                    this.setAiStatus(false, TextQuest.lang === 'zh' ? '故事世界生成成功！點擊卡片可微調。已解鎖第三步任務規劃。' : 'Storyworld generated successfully! Click to edit. Step 3 unlocked.');
+                }
+            };
+        }
 
         // Step 3: Design Task Flow
-        document.getElementById('btn-ai-design-tasks').onclick = async () => {
-            this.setAiStatus(true, TextQuest.lang === 'zh' ? '正在為學生編排30分鐘學習探索序列...' : 'Sequencing 30-minute student inquiry paths...');
-            await new Promise(r => setTimeout(r, 1500));
-            
-            // Handled as visual unlock and preset mapping
-            this.activeStep = 4;
-            this.updateStepLockStates();
-            this.setAiStatus(false, TextQuest.lang === 'zh' ? '30分鐘學習動線編排完成！已解鎖第四步品質健檢。' : 'Inquiry flow optimized! Step 4 unlocked.');
-        };
+        const btnAiDesignTasks = document.getElementById('btn-ai-design-tasks');
+        if (btnAiDesignTasks) {
+            btnAiDesignTasks.onclick = async () => {
+                this.setAiStatus(true, TextQuest.lang === 'zh' ? '正在為學生編排30分鐘學習探索序列...' : 'Sequencing 30-minute student inquiry paths...');
+                await new Promise(r => setTimeout(r, 1500));
+                
+                // Handled as visual unlock and preset mapping
+                this.activeStep = 4;
+                this.updateStepLockStates();
+                this.setAiStatus(false, TextQuest.lang === 'zh' ? '30分鐘學習動線編排完成！已解鎖第四步品質健檢。' : 'Inquiry flow optimized! Step 4 unlocked.');
+            };
+        }
 
         // Step 4: Run Quality Check
-        document.getElementById('btn-ai-check-quality').onclick = async () => {
-            this.setAiStatus(true, TextQuest.lang === 'zh' ? '正在審查 AI NPC 對話可控性、文本對齊度與邏輯缺陷...' : 'Reviewing dialog grounding, coverage, and coherence...');
-            await new Promise(r => setTimeout(r, 2000));
-            
-            this.showQualityCheckResults();
-            this.setAiStatus(false, TextQuest.lang === 'zh' ? '品質健檢通過！可即時切換「學生探索空間」進行遊玩測試。' : 'Quality check passed! Switch to Playtest mode to test instantly.');
-        };
+        const btnAiCheckQuality = document.getElementById('btn-ai-check-quality');
+        if (btnAiCheckQuality) {
+            btnAiCheckQuality.onclick = async () => {
+                this.setAiStatus(true, TextQuest.lang === 'zh' ? '正在審查 AI NPC 對話可控性、文本對齊度與邏輯缺陷...' : 'Reviewing dialog grounding, coverage, and coherence...');
+                await new Promise(r => setTimeout(r, 2000));
+                
+                this.showQualityCheckResults();
+                this.setAiStatus(false, TextQuest.lang === 'zh' ? '品質健檢通過！可即時切換「學生探索空間」進行遊玩測試。' : 'Quality check passed! Switch to Playtest mode to test instantly.');
+            };
+        }
 
         // AI Results Close
-        document.getElementById('btn-close-ai-results').onclick = () => {
-            document.getElementById('ai-results-panel').classList.add('hidden');
-        };
+        const btnCloseAiRes = document.getElementById('btn-close-ai-results');
+        if (btnCloseAiRes) {
+            btnCloseAiRes.onclick = () => {
+                const aiPanel = document.getElementById('ai-results-panel');
+                if (aiPanel) aiPanel.classList.add('hidden');
+            };
+        }
 
         // NPC Drawer Close Trigger
-        document.getElementById('btn-close-npc-editor').onclick = () => {
-            document.getElementById('modal-npc-editor').classList.add('hidden');
-        };
+        const btnCloseNpcEd = document.getElementById('btn-close-npc-editor');
+        if (btnCloseNpcEd) {
+            btnCloseNpcEd.onclick = () => {
+                const npcEd = document.getElementById('modal-npc-editor');
+                if (npcEd) npcEd.classList.add('hidden');
+            };
+        }
         
         // NPC Save Trigger
-        document.getElementById('btn-save-npc').onclick = () => {
-            this.saveNpcDetails();
-        };
+        const btnSaveNpc = document.getElementById('btn-save-npc');
+        if (btnSaveNpc) {
+            btnSaveNpc.onclick = () => {
+                this.saveNpcDetails();
+            };
+        }
 
         // NPC Delete Trigger
-        document.getElementById('btn-delete-npc').onclick = () => {
-            if (confirm(TextQuest.lang === 'zh' ? '確定要刪除此角色嗎？' : 'Delete this NPC?')) {
-                this.deleteNpc();
-            }
-        };
+        const btnDeleteNpc = document.getElementById('btn-delete-npc');
+        if (btnDeleteNpc) {
+            btnDeleteNpc.onclick = () => {
+                if (confirm(TextQuest.lang === 'zh' ? '確定要刪除此角色嗎？' : 'Delete this NPC?')) {
+                    this.deleteNpc();
+                }
+            };
+        }
     },
 
     // Render Locations Canvas
