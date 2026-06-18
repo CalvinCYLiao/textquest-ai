@@ -135,6 +135,21 @@ window.StudentModule = {
                 this.renderSourceTextReader();
                 this.renderBinder();
                 this.updateProgressionFlow();
+
+                // Update map images dynamically
+                const mapPath = TextQuest.activity.mapImage || 'assets/green_creek_map.png';
+                const mainMapEl = document.getElementById('student-main-map-image');
+                const zoomMapEl = document.getElementById('student-zoom-map-image');
+                const zoomTitleEl = document.getElementById('student-zoom-map-title');
+                
+                if (mainMapEl) mainMapEl.src = mapPath;
+                if (zoomMapEl) zoomMapEl.src = mapPath;
+                if (zoomTitleEl) {
+                    const isZh = TextQuest.lang === 'zh';
+                    const titleText = isZh ? `${TextQuest.activity.title} 地圖` : `${TextQuest.activity.title} Map`;
+                    zoomTitleEl.textContent = '🗺️ ' + titleText;
+                }
+
                 console.log("Student playtest workspace initialized successfully");
             } catch (error) {
                 console.error("Error in btn-start-mission onclick handler:", error);

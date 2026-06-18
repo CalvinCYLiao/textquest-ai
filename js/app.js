@@ -203,6 +203,7 @@ const DEFAULT_NPCS = {
 window.PRESET_ACTIVITIES = [
     {
         id: 'activity_riverbank',
+        mapImage: 'assets/green_creek_map.png',
         title: '消失的綠溪河水 (The Lost Riverwater)',
         target: '國中八年級 (Grade 8)',
         time: 30,
@@ -214,6 +215,7 @@ window.PRESET_ACTIVITIES = [
     },
     {
         id: 'activity_soil',
+        mapImage: 'assets/soil_pollution_map.png',
         title: '綠溪庄土壤污染謎團 (The Lost Soil Quality)',
         target: '國中八年級 (Grade 8)',
         time: 30,
@@ -320,6 +322,7 @@ window.PRESET_ACTIVITIES = [
     },
     {
         id: 'activity_fake_news',
+        mapImage: 'assets/fake_news_map.png',
         title: '社群媒體假新聞判讀 (AI Fake News Literacy)',
         target: '國中九年級 (Grade 9)',
         time: 30,
@@ -426,6 +429,7 @@ window.PRESET_ACTIVITIES = [
     },
     {
         id: 'activity_bullying',
+        mapImage: 'assets/bullying_map.png',
         title: '校園霸凌與旁觀者效應 (Campus Bullying & Bystander Effect)',
         target: '國中八年級 (Grade 8)',
         time: 30,
@@ -532,6 +536,7 @@ window.PRESET_ACTIVITIES = [
     },
     {
         id: 'activity_energy',
+        mapImage: 'assets/wetland_solar_map.png',
         title: '再生能源與生態衝突 (Wetland Energy vs Conservation)',
         target: '國中八年級 (Grade 8)',
         time: 30,
@@ -638,6 +643,7 @@ window.PRESET_ACTIVITIES = [
     },
     {
         id: 'activity_ethics',
+        mapImage: 'assets/academic_ethics_map.png',
         title: 'AI 工具學術誠信挑戰 (AI Writing Tools & Academic Ethics)',
         target: '國中九年級 (Grade 9)',
         time: 30,
@@ -744,6 +750,7 @@ window.PRESET_ACTIVITIES = [
     },
     {
         id: 'activity_taoyuan_ponds',
+        mapImage: 'assets/taoyuan_ponds_map.png',
         title: '桃園埤塘生態與光電開發 (Taoyuan Ponds: Eco-Conservation vs. Solar Power)',
         target: '國小六年級 (Grade 6)',
         time: 30,
@@ -850,6 +857,7 @@ window.PRESET_ACTIVITIES = [
     },
     {
         id: 'activity_taoyuan_pollution',
+        mapImage: 'assets/taoyuan_pollution_map.png',
         title: '桃園大圳水質守護戰 (Taoyuan Canal: Water Quality and Industrial Runoff)',
         target: '國小六年級 (Grade 6)',
         time: 30,
@@ -956,6 +964,7 @@ window.PRESET_ACTIVITIES = [
     },
     {
         id: 'activity_taoyuan_drought',
+        mapImage: 'assets/taoyuan_drought_map.png',
         title: '石門水庫與大圳的抗旱考驗 (Shimen Reservoir & The Canal: Extreme Weather and Water Allocation)',
         target: '國小六年級 (Grade 6)',
         time: 30,
