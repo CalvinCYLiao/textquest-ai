@@ -115,7 +115,8 @@ window.StudentModule = {
             chatHistory: {},
             synthesisTitle: '',
             synthesisBody: '',
-            isSubmitted: false
+            isSubmitted: false,
+            readerMode: 'article'
         };
 
         const countBadge = document.getElementById('binder-count-badge');
@@ -265,6 +266,32 @@ window.StudentModule = {
         document.getElementById('btn-submit-binding').onclick = () => {
             this.saveEvidenceLinking();
         };
+
+        // Reader Mode Toggles (Article vs Cards)
+        const btnArticle = document.getElementById('btn-reader-mode-article');
+        const btnCards = document.getElementById('btn-reader-mode-cards');
+        if (btnArticle && btnCards) {
+            btnArticle.onclick = () => {
+                TextQuest.student.readerMode = 'article';
+                btnArticle.classList.add('active');
+                btnArticle.style.background = 'var(--accent-primary)';
+                btnArticle.style.color = 'white';
+                btnCards.classList.remove('active');
+                btnCards.style.background = 'transparent';
+                btnCards.style.color = 'var(--text-muted)';
+                this.renderSourceTextReader();
+            };
+            btnCards.onclick = () => {
+                TextQuest.student.readerMode = 'cards';
+                btnCards.classList.add('active');
+                btnCards.style.background = 'var(--accent-primary)';
+                btnCards.style.color = 'white';
+                btnArticle.classList.remove('active');
+                btnArticle.style.background = 'transparent';
+                btnArticle.style.color = 'var(--text-muted)';
+                this.renderSourceTextReader();
+            };
+        }
 
         // Back to teacher studio redirects (now Gateway / Selector)
         document.getElementById('btn-back-to-authoring').onclick = () => {
@@ -846,15 +873,50 @@ window.StudentModule = {
             return;
         }
 
+        const isCardMode = TextQuest.student.readerMode === 'cards';
+        if (isCardMode) {
+            container.classList.add('card-mode');
+        } else {
+            container.classList.remove('card-mode');
+        }
+
         TextQuest.activity.sentences.forEach(s => {
-            const span = document.createElement('span');
+            const span = document.createElement(isCardMode ? 'div' : 'span');
             span.className = 'source-text-sentence';
             span.setAttribute('data-id', s.id);
-            span.textContent = `${s.id}. ${s.text} `;
+            span.setAttribute('data-text', s.text);
             
             // Highlight if already linked to a clue (cast both to string for safe comparison)
             const isLinked = TextQuest.student.evidenceLinks.some(link => link.sentenceId && s.id && link.sentenceId.toString() === s.id.toString());
             if (isLinked) span.classList.add('linked');
+
+            if (isCardMode) {
+                // Style cards dynamically
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'card-sentence-header';
+                cardHeader.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid var(--border-color); padding-bottom:6px; font-size:0.72rem; color:var(--text-muted); font-weight:600;';
+                
+                const badge = document.createElement('span');
+                badge.innerHTML = `📄 ${isZh ? '字卡' : 'Card'} ${s.id}`;
+                cardHeader.appendChild(badge);
+                
+                if (isLinked) {
+                    const linkedStatus = document.createElement('span');
+                    linkedStatus.style.cssText = 'color:var(--accent-warning); font-size:0.68rem; font-weight:bold; display:flex; align-items:center; gap:4px;';
+                    linkedStatus.innerHTML = `🔗 ${isZh ? '已連結線索' : 'Linked'}`;
+                    cardHeader.appendChild(linkedStatus);
+                }
+                
+                const cardBody = document.createElement('div');
+                cardBody.className = 'card-sentence-body';
+                cardBody.style.cssText = 'font-size:0.82rem; line-height:1.5; color:var(--text-main); font-weight:500; word-break:break-all; text-align:left;';
+                cardBody.textContent = s.text;
+                
+                span.appendChild(cardHeader);
+                span.appendChild(cardBody);
+            } else {
+                span.textContent = `${s.id}. ${s.text} `;
+            }
 
             // Listen to sentence hover and click selection
             span.onclick = (e) => {
@@ -898,9 +960,10 @@ window.StudentModule = {
         const sentenceId = selectedSpan.getAttribute('data-id');
         let sentence = TextQuest.activity.sentences.find(s => s.id && s.id.toString() === sentenceId.toString());
         
-        // Safety Fallback: if sentence is not found in state, reconstruct it from DOM text content
+        // Safety Fallback: if sentence is not found in state, reconstruct it from DOM text content or data attributes
         if (!sentence) {
-            const cleanText = selectedSpan.textContent.replace(/^\d+[\.\s、]+/g, '').trim();
+            const dataText = selectedSpan.getAttribute('data-text');
+            const cleanText = dataText ? dataText : selectedSpan.textContent.replace(/^\d+[\.\s、]+/g, '').trim();
             sentence = { id: sentenceId, text: cleanText };
         }
 
@@ -939,9 +1002,10 @@ window.StudentModule = {
         const sentenceId = selectedSpan.getAttribute('data-id');
         let sentence = TextQuest.activity.sentences.find(s => s.id && s.id.toString() === sentenceId.toString());
         
-        // Safety Fallback: if sentence is not found in state, reconstruct it from DOM text content
+        // Safety Fallback: if sentence is not found in state, reconstruct it from DOM text content or data attributes
         if (!sentence) {
-            const cleanText = selectedSpan.textContent.replace(/^\d+[\.\s、]+/g, '').trim();
+            const dataText = selectedSpan.getAttribute('data-text');
+            const cleanText = dataText ? dataText : selectedSpan.textContent.replace(/^\d+[\.\s、]+/g, '').trim();
             sentence = { id: sentenceId, text: cleanText };
         }
 
