@@ -160,9 +160,31 @@
         <!-- TEACHER STUDIO VIEW                            -->
         <!-- ============================================== -->
         <section id="view-teacher" class="view-panel hidden">
-            <div class="studio-layout">
+            <!-- 0. Teacher Activity Selection Screen -->
+            <div id="teacher-activity-selector" class="student-activity-selector-screen">
+                <div class="selector-card glass-card">
+                    <div class="selector-header">
+                        <div class="badge badge-active-mode" data-zh="教師設計主題選擇" data-en="Select Topic to Edit">教師設計主題選擇</div>
+                        <h2 data-zh="🛠️ 請選擇欲編輯的探究主題" data-en="🛠️ Select Inquiry Topic to Edit">🛠️ 請選擇欲編輯的探究主題</h2>
+                        <p data-zh="您可以選擇下方預設的多主題模組進行編輯與微調，也可以從頭開始設計或載入最新的自訂草稿。" data-en="Select a preset topic or load your custom draft to edit in the Teacher Studio.">您可以選擇下方預設的多主題模組進行編輯與微調，也可以從頭開始設計或載入最新的自訂草稿。</p>
+                    </div>
+                    
+                    <div class="activity-cards-grid" id="teacher-activity-selector-grid">
+                        <!-- Populated dynamically by TeacherModule -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1. Teacher Editing Workspace (hidden initially) -->
+            <div id="teacher-studio-workspace" class="hidden">
+                <div class="studio-layout">
                 <!-- Left: Source & Activity Configuration -->
                 <div class="studio-sidebar glass-card">
+                    <!-- Back to Selector Button -->
+                    <button id="btn-back-to-teacher-selector" class="btn btn-secondary w-full mb-4" style="margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; color: var(--text-primary);">
+                        <span>🔙</span> <span data-zh="返回主題選擇" data-en="Back to Theme Selector">返回主題選擇</span>
+                    </button>
+                    
                     <div class="section-title">
                         <h3>1. <span data-zh="活動設定" data-en="Activity Configuration">活動設定</span></h3>
                     </div>
@@ -325,6 +347,8 @@
                     </div>
                 </div>
             </div>
+        
+            </div> <!-- end of #teacher-studio-workspace -->
         </section>
 
         <!-- ============================================== -->

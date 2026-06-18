@@ -2559,3 +2559,39 @@ p {
     line-height: 1.5;
     flex-grow: 1;
 }
+
+/* Teacher Selector custom card and blank card */
+.activity-item-card.blank-card {
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 170px;
+    padding: 24px;
+}
+.activity-item-card.blank-card:hover {
+    border-color: var(--accent-primary);
+    background: rgba(139, 92, 246, 0.05);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.1);
+}
+.activity-item-card.blank-card .blank-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+}
+.activity-item-card.blank-card:hover .blank-inner {
+    color: var(--text-primary);
+}
+.activity-item-card.blank-card .blank-icon {
+    font-size: 2rem;
+}
+.activity-item-card.blank-card .blank-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+}

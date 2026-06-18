@@ -8,37 +8,174 @@ window.TeacherModule = {
     activeStep: 1,
     
     init() {
-        this.bindEvents();
+        if (!this.initialized) {
+            this.bindEvents();
+            
+            // Listen to active input changes once
+            document.getElementById('input-title').addEventListener('input', (e) => {
+                TextQuest.activity.title = e.target.value;
+            });
+            document.getElementById('input-target').addEventListener('input', (e) => {
+                TextQuest.activity.target = e.target.value;
+            });
+            document.getElementById('input-time').addEventListener('input', (e) => {
+                TextQuest.activity.time = parseInt(e.target.value) || 30;
+            });
+            document.getElementById('input-goals').addEventListener('input', (e) => {
+                TextQuest.activity.goals = e.target.value;
+            });
+            document.getElementById('input-product').addEventListener('input', (e) => {
+                TextQuest.activity.product = e.target.value;
+            });
+            document.getElementById('input-source-text').addEventListener('input', (e) => {
+                TextQuest.activity.sourceText = e.target.value;
+                TextQuest.activity.sentences = window.parseSourceTextToSentences(e.target.value);
+            });
+            
+            // Bind Back to Selector button once
+            const backBtn = document.getElementById('btn-back-to-teacher-selector');
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    // Autosave changes to localStorage
+                    window.saveCustomActivityToStorage();
+                    
+                    // Return to selector screen
+                    document.getElementById('teacher-studio-workspace').classList.add('hidden');
+                    document.getElementById('teacher-activity-selector').classList.remove('hidden');
+                    this.renderActivitySelector();
+                });
+            }
+
+            this.initialized = true;
+        }
+
+        // Show selector by default
+        document.getElementById('teacher-activity-selector').classList.remove('hidden');
+        document.getElementById('teacher-studio-workspace').classList.add('hidden');
+        
+        this.renderActivitySelector();
+    },
+
+    renderActivitySelector() {
+        const grid = document.getElementById('teacher-activity-selector-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        
+        const isZh = TextQuest.lang === 'zh';
+        
+        const activities = [];
+        
+        // 1. Preset activities
+        window.PRESET_ACTIVITIES.forEach(act => {
+            activities.push({
+                ...act,
+                type: 'preset'
+            });
+        });
+        
+        // 2. Custom activity (draft) from localStorage
+        const customRaw = localStorage.getItem('tq_custom_activity');
+        if (customRaw) {
+            try {
+                const customAct = JSON.parse(customRaw);
+                activities.push({
+                    ...customAct,
+                    id: 'activity_custom',
+                    title: customAct.title || (isZh ? '自訂設計活動草稿' : 'Custom Designed Draft'),
+                    type: 'custom'
+                });
+            } catch (e) {
+                console.error("Error parsing custom activity:", e);
+            }
+        }
+        
+        // Render each card
+        activities.forEach(act => {
+            const card = document.createElement('div');
+            card.className = `activity-item-card ${act.type === 'custom' ? 'custom-card' : ''}`;
+            
+            const badgeLabel = act.type === 'custom' 
+                ? (isZh ? '🛠️ 本地自訂草稿' : '🛠️ Local Custom Draft') 
+                : (isZh ? '⚙️ 系統預設主題' : '⚙️ System Preset');
+            
+            card.innerHTML = `
+                <div class="activity-badge ${act.type}">${badgeLabel}</div>
+                <div class="title">${escapeHtml(act.title)}</div>
+                <div class="goals-summary">
+                    <strong>${isZh ? '🎯 目標' : '🎯 Goal'}:</strong> ${escapeHtml(act.goals)}
+                </div>
+                <div class="meta-info">
+                    <span>👥 ${escapeHtml(act.target)}</span>
+                    <span>⏱️ ${act.time} ${isZh ? '分鐘' : 'mins'}</span>
+                </div>
+            `;
+            
+            card.onclick = () => {
+                this.selectActivity(act);
+            };
+            grid.appendChild(card);
+        });
+        
+        // 3. Create Blank Activity Card
+        const blankCard = document.createElement('div');
+        blankCard.className = 'activity-item-card blank-card';
+        blankCard.innerHTML = `
+            <div class="blank-inner">
+                <span class="blank-icon">➕</span>
+                <span class="blank-title">${isZh ? '設計全新空白活動' : 'Design Blank Activity'}</span>
+            </div>
+        `;
+        blankCard.onclick = () => {
+            const blankAct = {
+                id: 'activity_blank_' + Date.now(),
+                title: isZh ? '未命名探究活動' : 'Untitled Inquiry Activity',
+                target: isZh ? '未設定年級' : 'Grade Not Set',
+                time: 30,
+                goals: isZh ? '請輸入您的核心學習目標...' : 'Please enter learning objectives...',
+                product: isZh ? '請輸入最終產出任務...' : 'Please enter final synthesis task...',
+                sourceText: '',
+                locations: [],
+                npcs: {}
+            };
+            this.selectActivity(blankAct);
+        };
+        grid.appendChild(blankCard);
+    },
+
+    selectActivity(act) {
+        // Load selected activity into session
+        window.loadActivityIntoSession(act);
+        
+        // Update input fields
+        this.loadFieldsFromSession();
+        
+        // Re-render locations grid
         this.renderLocations();
+        
+        // Reset Assistant active step to 1 (or 4 if loaded a complete preset)
+        if (act.locations && act.locations.length > 0) {
+            this.activeStep = 4;
+        } else {
+            this.activeStep = 1;
+        }
         this.updateStepLockStates();
         
-        // Load existing values into form fields
-        document.getElementById('input-title').value = TextQuest.activity.title;
-        document.getElementById('input-target').value = TextQuest.activity.target;
-        document.getElementById('input-time').value = TextQuest.activity.time;
-        document.getElementById('input-goals').value = TextQuest.activity.goals;
-        document.getElementById('input-product').value = TextQuest.activity.product;
+        // Toggle view panels
+        document.getElementById('teacher-activity-selector').classList.add('hidden');
+        document.getElementById('teacher-studio-workspace').classList.remove('hidden');
+    },
+
+    loadFieldsFromSession() {
+        document.getElementById('input-title').value = TextQuest.activity.title || '';
+        document.getElementById('input-target').value = TextQuest.activity.target || '';
+        document.getElementById('input-time').value = TextQuest.activity.time || 30;
+        document.getElementById('input-goals').value = TextQuest.activity.goals || '';
+        document.getElementById('input-product').value = TextQuest.activity.product || '';
         
-        // Listen to active input changes
-        document.getElementById('input-title').addEventListener('input', (e) => {
-            TextQuest.activity.title = e.target.value;
-        });
-        document.getElementById('input-target').addEventListener('input', (e) => {
-            TextQuest.activity.target = e.target.value;
-        });
-        document.getElementById('input-time').addEventListener('input', (e) => {
-            TextQuest.activity.time = parseInt(e.target.value) || 30;
-        });
-        document.getElementById('input-goals').addEventListener('input', (e) => {
-            TextQuest.activity.goals = e.target.value;
-        });
-        document.getElementById('input-product').addEventListener('input', (e) => {
-            TextQuest.activity.product = e.target.value;
-        });
-        document.getElementById('input-source-text').addEventListener('input', (e) => {
-            TextQuest.activity.sourceText = e.target.value;
-            TextQuest.activity.sentences = window.parseSourceTextToSentences(e.target.value);
-        });
+        const sourceTextEl = document.getElementById('input-source-text');
+        if (sourceTextEl) {
+            sourceTextEl.value = TextQuest.activity.sourceText || '';
+        }
     },
 
     bindEvents() {
