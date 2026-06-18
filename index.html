@@ -445,10 +445,10 @@
                 <div class="student-game-grid">
                     
                     <!-- Left: Navigation Map & Locations -->
-                    <div class="student-map-panel glass-card" style="display: flex; flex-direction: column; height: 100%; max-height: calc(100vh - 120px); box-sizing: border-box;">
+                    <div class="student-map-panel glass-card">
                         <div class="panel-header" style="flex-shrink: 0; margin-bottom: 8px;">
                             <h3 data-zh="🧭 探究場景地圖" data-en="🧭 Storyworld Map">🧭 探究場景地圖</h3>
-                            <span class="sub" data-zh="點擊地圖角色圖示或下方卡片探索" data-en="Click NPC icons or cards to travel">點擊地圖角色圖示或下方卡片探索</span>
+                            <span class="sub" data-zh="點擊地圖角色圖示或下方列表探索" data-en="Click NPC icons or list below to travel">點擊地圖角色圖示或下方列表探索</span>
                         </div>
                         
                         <!-- Travel visual transition layer -->
@@ -467,28 +467,108 @@
                             </div>
                         </div>
 
-                        <div id="student-map-grid" class="student-map-grid" style="flex: 1; overflow-y: auto;">
-                            <!-- Visual Location Cards generated dynamically -->
+                        <!-- Bottom Area: Toggled between Map Grid (Locations) & NPC Interaction (Dialogue) -->
+                        <div class="student-left-bottom-content" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-top: 8px;">
+                            <!-- State A: Location Cards List (default) -->
+                            <div id="student-map-grid" class="student-map-grid" style="flex: 1; overflow-y: auto;">
+                                <!-- Visual Location Cards generated dynamically -->
+                            </div>
+
+                            <!-- State B: Active NPC Chat/Interaction Panel (shown when currentLocationId is set) -->
+                            <div class="student-interaction-panel hidden" id="student-interaction-panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0; border: none; background: transparent;">
+                                <div id="empty-interaction-state" class="empty-state" style="display: none;">
+                                    <div class="empty-icon">💬</div>
+                                    <h3 data-zh="請選擇一個場景" data-en="Please Select a Location">請選擇一個場景</h3>
+                                    <p data-zh="點擊地圖上的地點，尋找線索並訪談目擊者。" data-en="Click a location on the map to search for clues and interview witnesses.">點擊地圖上的地點，尋找線索並訪談目擊者。</p>
+                                </div>
+                                
+                                <!-- Active Location Container -->
+                                <div id="active-location-container" class="active-location-container hidden" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                                    <!-- Location Header -->
+                                    <div class="location-header-bar" id="active-loc-header" style="flex-shrink: 0; margin-bottom: 8px; padding: 6px 10px;">
+                                        <div class="loc-badge-icon" id="active-loc-icon">📍</div>
+                                        <div class="loc-details">
+                                            <h4 id="active-loc-name" style="font-size: 0.85rem; font-weight: 700; margin: 0;">場景名稱</h4>
+                                            <p id="active-loc-desc" style="display: none;"></p>
+                                        </div>
+                                        <button id="btn-leave-location" class="btn btn-sm btn-secondary" style="font-size: 0.7rem; padding: 3px 8px;" data-zh="離開場景" data-en="Leave">離開場景</button>
+                                    </div>
+                                    
+                                    <!-- Location Split (Actors hidden inside left bottom layout, dialogue-box takes 100% space) -->
+                                    <div class="location-split" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; gap: 0;">
+                                        <!-- Hide redundant actor list column since interactive map acts as directory -->
+                                        <div class="location-actors" style="display: none;">
+                                            <h4 data-zh="👥 場景中的人物" data-en="👥 Characters Here">👥 場景中的人物</h4>
+                                            <div id="location-npcs-list" class="npc-actor-list">
+                                                <!-- NPCs generated here -->
+                                            </div>
+                                            <h4 class="mt-4" data-zh="💼 收集到的線索與物品" data-en="💼 Clues & Items">💼 收集到的線索與物品</h4>
+                                            <div id="location-clues-list" class="clue-item-list">
+                                                <!-- Clues lying in location -->
+                                            </div>
+                                        </div>
+
+                                        <!-- Active Chat Interface -->
+                                        <div class="dialogue-box" id="dialogue-box" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                                            <div id="dialogue-empty-state" class="empty-state" style="display: none;">
+                                                <div class="empty-icon">💬</div>
+                                                <h4 data-zh="請選擇一位場景中的人物進行訪談" data-en="Select an NPC to Interview">請選擇一位場景中的人物進行訪談</h4>
+                                            </div>
+                                            
+                                            <div id="active-chat-container" class="active-chat-container hidden" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                                                <div class="chat-header" style="flex-shrink: 0; padding: 6px 8px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px;">
+                                                    <div class="npc-chat-avatar" id="chat-npc-avatar" style="font-size: 1.1rem; width: 24px; height: 24px;">👴</div>
+                                                    <div class="npc-chat-meta">
+                                                        <h4 id="chat-npc-name" style="font-size: 0.8rem; font-weight: 600; margin: 0;">老農夫 阿土伯</h4>
+                                                        <span class="chat-npc-style" id="chat-npc-style" style="display: none;"></span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Conversations logs -->
+                                                <div class="chat-history" id="chat-history" style="flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px;">
+                                                    <!-- Dynamically generated dialogue bubbles -->
+                                                </div>
+                                                
+                                                <!-- Scaffolded Questions suggestions -->
+                                                <div class="chat-scaffolding-questions" id="chat-scaffolding-box" style="flex-shrink: 0; background: var(--bg-tertiary); border-top: 1px solid var(--border-color); padding: 6px 8px;">
+                                                    <span class="scaffold-title" style="font-size: 0.65rem;" data-zh="💡 建議提問：" data-en="💡 Suggested Questions:">💡 建議提問：</span>
+                                                    <div class="scaffold-list" id="chat-scaffold-list" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">
+                                                        <!-- Dynamic scaffolding questions based on NPC clue status -->
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Custom Chat Input -->
+                                                <div class="chat-input-bar" style="flex-shrink: 0; padding: 6px; display: flex; gap: 6px; background: var(--bg-tertiary); border-top: 1px solid var(--border-color);">
+                                                    <input type="text" id="chat-input-text" placeholder="輸入你想追問的問題..." data-zh-placeholder="輸入你想追問的問題..." data-en-placeholder="Type your question to probe..." style="font-size: 0.75rem; padding: 6px 8px; flex: 1; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-main); outline: none;">
+                                                    <button id="btn-chat-send" class="btn btn-primary" style="font-size: 0.72rem; padding: 6px 10px;">
+                                                        <span data-zh="提問" data-en="Ask">提問</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Middle: Inquiry Text (Top) & Location Interaction / Chat (Bottom) -->
-                    <div class="student-middle-panel">
-                        <!-- Upper: Inquiry Text Reader -->
-                        <div class="student-reader-section glass-card">
-                            <div class="panel-header" style="padding-bottom: 6px; margin-bottom: 6px;">
-                                <h3 data-zh="探究文本" data-en="Source Text">探究文本</h3>
+                    <!-- Middle: Inquiry Text (Center Stage) -->
+                    <div class="student-middle-panel" style="display: flex; flex-direction: column; height: 100%; max-height: calc(100vh - 120px); box-sizing: border-box;">
+                        <!-- Inquiry Text Reader -->
+                        <div class="student-reader-section glass-card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; height: 100%; padding: 16px;">
+                            <div class="panel-header" style="flex-shrink: 0; padding-bottom: 6px; margin-bottom: 6px;">
+                                <h3 data-zh="📖 探究文本" data-en="Inquiry Text">📖 探究文本</h3>
                                 <span class="sub" data-zh="💡 提示：在文字中拖曳選取句子，然後點擊「將選取文字與線索連結」將其綁定為佐證證據！" data-en="💡 Tip: Drag-select or click a sentence, then click 'Link Highlight to Clue' to bind it as evidence!">💡 提示：在文字中拖曳選取句子，然後點擊「將選取文字與線索連結」將其綁定為佐證證據！</span>
                             </div>
                             
-                            <div class="reader-split-layout">
+                            <div class="reader-split-layout" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; gap: 12px;">
                                 <!-- Matching Scenario Image -->
-                                <div class="source-text-image-container" id="btn-zoom-image">
-                                    <img id="student-main-map-image" src="assets/green_creek_map.png" alt="Inquiry Scenario Map" class="source-text-image">
+                                <div class="source-text-image-container" id="btn-zoom-image" style="flex-shrink: 0; margin-bottom: 0;">
+                                    <img id="student-main-map-image" src="assets/green_creek_map.png" alt="Inquiry Scenario Map" class="source-text-image" style="height: 120px;">
                                     <div class="image-caption" data-zh="點擊地圖放大 🗺️" data-en="Click to zoom map 🗺️">點擊地圖放大 🗺️</div>
                                 </div>
                                 
-                                <div class="source-text-reader" id="source-text-reader-container">
+                                <div class="source-text-reader" id="source-text-reader-container" style="flex: 1; overflow-y: auto; padding-right: 4px;">
                                     <!-- Populated sentence by sentence with selection triggers -->
                                 </div>
                             </div>
@@ -496,141 +576,73 @@
                                 🔗 <span data-zh="將選取文字與線索連結" data-en="Link Highlight to Clue">將選取文字與線索連結</span>
                             </button>
                         </div>
-
-                        <!-- Lower: Location Interaction Hub & Dialogue -->
-                        <div class="student-interaction-panel glass-card" id="student-interaction-panel">
-                            <div id="empty-interaction-state" class="empty-state">
-                                <div class="empty-icon">💬</div>
-                                <h3 data-zh="請選擇一個場景" data-en="Please Select a Location">請選擇一個場景</h3>
-                                <p data-zh="點擊左側地圖上的地點，尋找線索並訪談目擊者。" data-en="Click a location on the left map to search for clues and interview witnesses.">點擊左側地圖上的地點，尋找線索並訪談目擊者。</p>
-                            </div>
-                            
-                            <!-- Active Location Container -->
-                            <div id="active-location-container" class="active-location-container hidden">
-                                <!-- Location Header -->
-                                <div class="location-header-bar" id="active-loc-header">
-                                    <div class="loc-badge-icon" id="active-loc-icon">📍</div>
-                                    <div class="loc-details">
-                                        <h3 id="active-loc-name">場景名稱</h3>
-                                        <p id="active-loc-desc">場景描述資訊...</p>
-                                    </div>
-                                    <button id="btn-leave-location" class="btn btn-sm btn-secondary" data-zh="離開場景" data-en="Leave">離開場景</button>
-                                </div>
-                                
-                                <!-- Location Split: Characters & Clues -->
-                                <div class="location-split">
-                                    <!-- NPC selector list in this location -->
-                                    <div class="location-actors">
-                                        <h4 data-zh="👥 場景中的人物" data-en="👥 Characters Here">👥 場景中的人物</h4>
-                                        <div id="location-npcs-list" class="npc-actor-list">
-                                            <!-- NPCs generated here -->
-                                        </div>
-                                        
-                                        <h4 class="mt-4" data-zh="💼 收集到的線索與物品" data-en="💼 Clues & Items">💼 收集到的線索與物品</h4>
-                                        <div id="location-clues-list" class="clue-item-list">
-                                            <!-- Clues lying in location -->
-                                        </div>
-                                    </div>
-
-                                    <!-- Active Chat Interface -->
-                                    <div class="dialogue-box" id="dialogue-box">
-                                        <div id="dialogue-empty-state" class="empty-state">
-                                            <div class="empty-icon">💬</div>
-                                            <h4 data-zh="請選擇一位場景中的人物進行訪談" data-en="Select an NPC to Interview">請選擇一位場景中的人物進行訪談</h4>
-                                            <p data-zh="點擊左側的角色頭像，開始與他們進行對話對話。" data-en="Click an NPC profile on the left to start a dialogue.">點擊左側的角色頭像，開始與他們進行對話對話。</p>
-                                        </div>
-                                        
-                                        <div id="active-chat-container" class="active-chat-container hidden">
-                                            <div class="chat-header">
-                                                <div class="npc-chat-avatar" id="chat-npc-avatar">👴</div>
-                                                <div class="npc-chat-meta">
-                                                    <h4 id="chat-npc-name">老農夫 阿土伯</h4>
-                                                    <span class="chat-npc-style" id="chat-npc-style">說話帶著濃濃的鄉音，感嘆過去的河流生機。</span>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Conversations logs -->
-                                            <div class="chat-history" id="chat-history">
-                                                <!-- Dynamically generated dialogue bubbles -->
-                                            </div>
-                                            
-                                            <!-- Scaffolded Questions suggestions -->
-                                            <div class="chat-scaffolding-questions" id="chat-scaffolding-box">
-                                                <span class="scaffold-title" data-zh="💡 建議提問：" data-en="💡 Suggested Questions:">💡 建議提問：</span>
-                                                <div class="scaffold-list" id="chat-scaffold-list">
-                                                    <!-- Dynamic scaffolding questions based on NPC clue status -->
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Custom Chat Input -->
-                                            <div class="chat-input-bar">
-                                                <input type="text" id="chat-input-text" placeholder="輸入你想追問的問題..." data-zh-placeholder="輸入你想追問的問題..." data-en-placeholder="Type your question to probe...">
-                                                <button id="btn-chat-send" class="btn btn-primary">
-                                                    <span data-zh="提問" data-en="Ask">提問</span> <span>💬</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- Right: Evidence Binder (Always visible) -->
-                    <div class="student-binder-panel glass-card">
-                        <div class="panel-header" style="padding-bottom: 6px; margin-bottom: 6px;">
-                            <h3 data-zh="💼 證據收集箱" data-en="💼 Evidence Binder">💼 證據收集箱</h3>
-                            <span class="sub" data-zh="你收集到的 NPC 角色線索與已綁定的課文證據" data-en="Collected NPC clues and grounded evidence connections">你收集到的 NPC 角色線索與已綁定的課文證據</span>
+                    <!-- Right: Evidence Binder & Synthesis Tabbed Panel -->
+                    <div class="student-binder-panel glass-card" style="display: flex; flex-direction: column; height: 100%; max-height: calc(100vh - 120px); box-sizing: border-box; overflow: hidden;">
+                        <div class="tabs-header" style="flex-shrink: 0; display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
+                            <button class="tab-btn active" data-tab="evidence" style="flex: 1; text-align: center; justify-content: center; padding: 8px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                <span>💼</span>
+                                <span data-zh="證據收集箱" data-en="Evidence Binder">證據收集箱</span>
+                                <span class="badge" id="binder-count-badge" style="margin-left: 4px;">0</span>
+                            </button>
+                            <button class="tab-btn" data-tab="synthesis" style="flex: 1; text-align: center; justify-content: center; padding: 8px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                <span>📝</span>
+                                <span data-zh="撰寫報告" data-en="Write Report">撰寫報告</span>
+                            </button>
                         </div>
-                        <div class="binder-grid" id="binder-clues-grid" style="margin-top: 10px;">
-                            <!-- Collected Clue Cards and their linked evidence mapping -->
+                        
+                        <!-- Tab 1: Evidence Binder -->
+                        <div id="tab-content-evidence" class="tab-content active" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                            <div class="panel-header" style="padding-bottom: 4px; margin-bottom: 4px; border-bottom: none; flex-shrink: 0;">
+                                <span class="sub" data-zh="你收集到的 NPC 角色線索與已綁定的課文證據" data-en="Collected NPC clues and grounded evidence connections">你收集到的 NPC 角色線索與已綁定的課文證據</span>
+                            </div>
+                            <div class="binder-grid" id="binder-clues-grid" style="flex: 1; overflow-y: auto; margin-top: 4px;">
+                                <!-- Collected Clue Cards and their linked evidence mapping -->
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Synthesis Report -->
+                        <div id="tab-content-synthesis" class="tab-content" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; display: none;">
+                            <div class="synthesis-editor-container" style="flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 4px;">
+                                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
+                                    <label class="form-label" style="font-size: 0.75rem; font-weight: 600;" data-zh="報告標題" data-en="Report Title">報告標題</label>
+                                    <input type="text" id="synth-input-title" class="form-input" value="" placeholder="請輸入你的成果報告標題..." style="width: 100%; box-sizing: border-box; font-size: 0.8rem; padding: 6px;">
+                                </div>
+                                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
+                                    <label class="form-label" style="font-size: 0.75rem; font-weight: 600;" data-zh="活動產出目標" data-en="Activity Goal">活動產出目標</label>
+                                    <blockquote class="synthesis-goal-reminder" id="synth-product-reminder" style="margin: 0; padding: 8px; background: var(--bg-tertiary); border-left: 3px solid var(--accent-primary); border-radius: 4px; font-size: 0.72rem; line-height: 1.4; color: var(--text-muted);"></blockquote>
+                                </div>
+                                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 150px;">
+                                    <label class="form-label" style="font-size: 0.75rem; font-weight: 600;" data-zh="綜合論證報告內文" data-en="Synthesis Report Body">綜合論證報告內文</label>
+                                    <textarea id="synth-input-body" class="form-input text-area" rows="6" placeholder="請在此撰寫你的整合探究報告，整合你從各NPC處收集到的證據與課文內容，進行邏輯嚴密的論證分析。" style="width: 100%; box-sizing: border-box; flex: 1; resize: vertical; min-height: 120px; font-size: 0.8rem; padding: 8px;"></textarea>
+                                </div>
+                                
+                                <div class="synthesis-evidence-sidebar" style="margin-top: 4px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                                    <h4 style="font-size: 0.75rem; font-weight: 600; margin-bottom: 2px;" data-zh="📌 引用已收集的線索（點擊插入）" data-en="📌 Cite Collected Clues (Click to insert)">📌 引用已收集的線索（點擊插入）</h4>
+                                    <p class="desc" style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 6px;" data-zh="點擊下方線索將其以格式化文字插入至報告游標處。" data-en="Click clues below to insert formatted citation at cursor.">點擊下方線索將其以格式化文字插入至報告游標處。</p>
+                                    <div class="synthesis-citation-list" id="synthesis-citation-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 150px; overflow-y: auto;">
+                                        <!-- Cards of gathered clues -->
+                                    </div>
+                                </div>
+
+                                <div class="synth-actions" style="display: flex; gap: 8px; margin-top: 6px; margin-bottom: 6px; flex-shrink: 0;">
+                                    <button id="btn-save-draft" class="btn btn-secondary" style="flex: 1; font-size: 0.75rem; padding: 6px 10px;" data-zh="儲存草稿" data-en="Save Draft">儲存草稿</button>
+                                    <button id="btn-submit-report" class="btn btn-success" style="flex: 1; font-size: 0.75rem; padding: 6px 10px;">
+                                        <span>📤</span> <span data-zh="提交報告" data-en="Submit Report">提交報告</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div> <!-- Closes student-game-grid -->
             </div> <!-- Closes student-workspace -->
-            <!-- 3. Student Synthesis Submission Drawer -->
-            <div id="synthesis-overlay" class="synthesis-overlay-screen hidden">
-                <div class="synthesis-modal glass-card">
-                    <div class="synthesis-header">
-                        <h2 data-zh="📊 撰寫最終探究成果報告" data-en="📊 Final Synthesis Report">📊 撰寫最終探究成果報告</h2>
-                        <button id="btn-close-synthesis" class="close-btn">&times;</button>
-                    </div>
-                    <div class="synthesis-split">
-                        <!-- Writing editor -->
-                        <div class="synthesis-editor-container">
-                            <div class="form-group">
-                                <label class="form-label" data-zh="成果報告標題" data-en="Report Title">成果報告標題</label>
-                                <input type="text" id="synth-input-title" class="form-input" value="" placeholder="請輸入你的成果報告標題...">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-zh="活動產出目標" data-en="Activity Product Goal">活動產出目標</label>
-                                <blockquote class="synthesis-goal-reminder" id="synth-product-reminder"></blockquote>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-zh="綜合論證報告內文" data-en="Synthesis Report Body">綜合論證報告內文</label>
-                                <textarea id="synth-input-body" class="form-input text-area tall-synthesis" rows="12" placeholder="請在此撰寫你的整合探究報告，整合你從各NPC處收集到的證據與課文內容，進行邏輯嚴密的論證分析。"></textarea>
-                            </div>
-                            <div class="synth-actions">
-                                <button id="btn-save-draft" class="btn btn-secondary" data-zh="儲存設計草稿" data-en="Save Draft">儲存設計草稿</button>
-                                <button id="btn-submit-report" class="btn btn-success btn-lg">
-                                    <span>📤</span> <span data-zh="提交探究成果" data-en="Submit Mission">提交探究成果</span>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Evidence Reference Sidebar -->
-                        <div class="synthesis-evidence-sidebar">
-                            <h4 data-zh="📌 引用已收集的線索（點擊插入）" data-en="📌 Cite Collected Clues (Click to insert)">📌 引用已收集的線索（點擊插入）</h4>
-                            <p class="desc" data-zh="高品質的探究需要引用並關聯 2 個以上的證據線索，才能進行有效的論證推理！" data-en="High quality inquiry requires citing multiple linked clues.">高品質的探究需要引用並關聯 2 個以上的證據線索，才能進行有效的論證推理！</p>
-                            
-                            <div class="synthesis-citation-list" id="synthesis-citation-list">
-                                <!-- Cards of gathered clues that are linked. Clicking copies a markdown citation or places it in editor -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            
+            <!-- Hidden dummy elements to maintain compatibility with legacy event bindings -->
+            <div id="synthesis-overlay" class="hidden" style="display: none;">
+                <button id="btn-close-synthesis" class="hidden" style="display: none;"></button>
             </div>
-
+            
             <!-- 4. Playtest Submission success review sheet -->
             <div id="student-success-sheet" class="student-success-screen hidden">
                 <div class="success-card glass-card">

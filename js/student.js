@@ -121,6 +121,12 @@ window.StudentModule = {
         const countBadge = document.getElementById('binder-count-badge');
         if (countBadge) countBadge.textContent = '0';
         document.getElementById('student-timer').textContent = `${TextQuest.activity.time}:00`;
+
+        // Reset tabs in right panel to default (Evidence Binder tab active)
+        const evidenceTabBtn = document.querySelector('.student-binder-panel .tab-btn[data-tab="evidence"]');
+        if (evidenceTabBtn) {
+            evidenceTabBtn.click();
+        }
     },
 
     bindEvents() {
@@ -171,8 +177,11 @@ window.StudentModule = {
         document.getElementById('btn-leave-location').onclick = () => {
             TextQuest.student.currentLocationId = null;
             TextQuest.student.currentNpcId = null;
-            document.getElementById('active-location-container').classList.add('hidden');
-            document.getElementById('empty-interaction-state').classList.remove('hidden');
+            
+            // Toggle sidebar panels
+            document.getElementById('student-map-grid').classList.remove('hidden');
+            document.getElementById('student-interaction-panel').classList.add('hidden');
+            
             this.renderMap();
         };
 
@@ -199,10 +208,13 @@ window.StudentModule = {
 
         // Modal Synthesis triggers
         document.getElementById('btn-toggle-synthesis').onclick = () => {
+            const synthTabBtn = document.querySelector('.student-binder-panel .tab-btn[data-tab="synthesis"]');
+            if (synthTabBtn) synthTabBtn.click();
             this.openSynthesisPanel();
         };
         document.getElementById('btn-close-synthesis').onclick = () => {
-            document.getElementById('synthesis-overlay').classList.add('hidden');
+            const evidenceTabBtn = document.querySelector('.student-binder-panel .tab-btn[data-tab="evidence"]');
+            if (evidenceTabBtn) evidenceTabBtn.click();
         };
 
         // Save Synthesis Draft
@@ -210,7 +222,8 @@ window.StudentModule = {
             TextQuest.student.synthesisTitle = document.getElementById('synth-input-title').value;
             TextQuest.student.synthesisBody = document.getElementById('synth-input-body').value;
             alert(TextQuest.lang === 'zh' ? '草稿儲存成功！' : 'Draft saved successfully!');
-            document.getElementById('synthesis-overlay').classList.add('hidden');
+            const evidenceTabBtn = document.querySelector('.student-binder-panel .tab-btn[data-tab="evidence"]');
+            if (evidenceTabBtn) evidenceTabBtn.click();
         };
 
         // Submit Synthesis Report
@@ -457,14 +470,24 @@ window.StudentModule = {
         setTimeout(() => {
             overlay.classList.add('hidden');
             TextQuest.student.currentLocationId = locId;
-            TextQuest.student.currentNpcId = null;
             
-            // Show interaction box
-            document.getElementById('empty-interaction-state').classList.add('hidden');
+            // Auto-select first NPC of the location to start dialogue directly
+            const loc = TextQuest.activity.locations.find(x => x.id === locId);
+            const firstNpcId = (loc && loc.npcs && loc.npcs.length > 0) ? loc.npcs[0] : null;
+            TextQuest.student.currentNpcId = firstNpcId;
+            
+            // Toggle sidebar panels
+            document.getElementById('student-map-grid').classList.add('hidden');
+            document.getElementById('student-interaction-panel').classList.remove('hidden');
             document.getElementById('active-location-container').classList.remove('hidden');
             
             this.renderMap();
             this.renderLocationSplit();
+            
+            if (firstNpcId) {
+                this.openNpcChat(firstNpcId);
+            }
+            
             this.updateProgressionFlow();
         }, 1200);
     },
@@ -479,8 +502,9 @@ window.StudentModule = {
             TextQuest.student.currentLocationId = locId;
             TextQuest.student.currentNpcId = npcId;
             
-            // Show interaction box
-            document.getElementById('empty-interaction-state').classList.add('hidden');
+            // Toggle sidebar panels
+            document.getElementById('student-map-grid').classList.add('hidden');
+            document.getElementById('student-interaction-panel').classList.remove('hidden');
             document.getElementById('active-location-container').classList.remove('hidden');
             
             this.renderMap();
