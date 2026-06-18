@@ -91,7 +91,7 @@
         </div>
         
         <!-- Global Nav Mode Switcher -->
-        <nav class="mode-nav">
+        <nav class="mode-nav hidden" id="global-mode-nav">
             <button id="btn-mode-teacher" class="nav-btn active" data-mode="teacher">
                 <span class="icon">🛠️</span>
                 <span class="text" data-zh="教師設計工作室" data-en="Teacher Studio">教師設計工作室</span>
@@ -108,13 +108,18 @@
         
         <!-- Header Actions -->
         <div class="header-actions">
+            <!-- Exit Role Gateway Button -->
+            <button id="btn-exit-role" class="nav-btn-icon hidden" title="切換角色 / Switch Role" style="margin-right: 8px;">
+                <span class="icon">🚪</span>
+                <span data-zh="登出" data-en="Exit">登出</span>
+            </button>
             <!-- Language Switcher -->
-                <button id="btn-lang" class="nav-btn-icon" title="切換語言 / Switch Language">
+            <button id="btn-lang" class="nav-btn-icon" title="切換語言 / Switch Language">
                 <span class="icon">🌐</span>
                 <span id="lang-label">EN</span>
             </button>
             <!-- API Settings Button -->
-                <button id="btn-settings" class="nav-btn-icon" title="AI API設定 / API Settings">
+            <button id="btn-settings" class="nav-btn-icon" title="AI API設定 / API Settings">
                 <span class="icon">⚙️</span>
             </button>
         </div>
@@ -124,9 +129,37 @@
     <main class="main-container">
         
         <!-- ============================================== -->
+        <!-- ROLE GATEWAY VIEW                              -->
+        <!-- ============================================== -->
+        <section id="view-gateway" class="view-panel active">
+            <div class="gateway-container glass-card">
+                <div class="gateway-header">
+                    <div class="gateway-badge">TextQuest AI v0.5</div>
+                    <h2 data-zh="🧠 歡迎來到 TextQuest AI 探究學習系統" data-en="🧠 Welcome to TextQuest AI System">🧠 歡迎來到 TextQuest AI 探究學習系統</h2>
+                    <p data-zh="本系統基於「限定故事世界」理念設計。請選擇您的角色以開始體驗。" data-en="Designed on the 'Bounded Storyworld' concept. Please select your role below.">本系統基於「限定故事世界」理念設計。請選擇您的角色以開始體驗。</p>
+                </div>
+                <div class="gateway-cards">
+                    <button id="btn-gateway-teacher" class="gateway-card glass-card">
+                        <div class="card-icon">🛠️</div>
+                        <h3 data-zh="教師設計工作室" data-en="Teacher Authoring Studio">教師設計工作室</h3>
+                        <p data-zh="匯入課程課文、藉由 AI 生成故事世界與 NPC 角色、設計探究任務及查看全班學習數據分析。" data-en="Import text, co-design storyworlds with AI, script NPCs, and review classroom analytics.">匯入課程課文、藉由 AI 生成故事世界與 NPC 角色、設計探究任務及查看全班學習數據分析。</p>
+                        <span class="btn btn-primary" style="pointer-events: none;" data-zh="進入教師端" data-en="Enter Teacher Portal">進入教師端</span>
+                    </button>
+                    
+                    <button id="btn-gateway-student" class="gateway-card glass-card">
+                        <div class="card-icon">🧭</div>
+                        <h3 data-zh="學生探索空間" data-en="Student Playtest Workspace">學生探索空間</h3>
+                        <p data-zh="扮演獨立調查員，在地圖中旅行移動、訪談不同立場的角色、收集線索並對齊課文證據以撰寫探究報告。" data-en="Roleplay as an investigator, travel the map, interview NPCs, collect clues, and synthesize evidence.">扮演獨立調查員，在地圖中旅行移動、訪談不同立場的角色、收集線索並對齊課文證據以撰寫探究報告。</p>
+                        <span class="btn btn-secondary" style="pointer-events: none;" data-zh="進入學生端" data-en="Enter Student Portal">進入學生端</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
         <!-- TEACHER STUDIO VIEW                            -->
         <!-- ============================================== -->
-        <section id="view-teacher" class="view-panel active">
+        <section id="view-teacher" class="view-panel hidden">
             <div class="studio-layout">
                 <!-- Left: Source & Activity Configuration -->
                 <div class="studio-sidebar glass-card">
@@ -298,6 +331,21 @@
         <!-- STUDENT PLAYTEST VIEW                          -->
         <!-- ============================================== -->
         <section id="view-student" class="view-panel hidden">
+            <!-- 0. Student Activity Selection Screen -->
+            <div id="student-activity-selector" class="student-activity-selector-screen">
+                <div class="selector-card glass-card">
+                    <div class="selector-header">
+                        <div class="badge badge-active-mode" data-zh="探究主題選擇" data-en="Select Inquiry Mission">探究主題選擇</div>
+                        <h2 data-zh="🧭 請選擇你的探究任務" data-en="🧭 Choose Your Inquiry Mission">🧭 請選擇你的探究任務</h2>
+                        <p data-zh="請選擇一個由老師設計或系統預設的探究活動，開始進行你的證據推理調查。" data-en="Select a preset or custom activity designed by your teacher to begin your investigation.">請選擇一個由老師設計或系統預設的探究活動，開始進行你的證據推理調查。</p>
+                    </div>
+                    
+                    <div class="activity-cards-grid" id="activity-selector-grid">
+                        <!-- Populated dynamically by StudentModule -->
+                    </div>
+                </div>
+            </div>
+
             <!-- 1. Mission Briefing (Overlay before start) -->
             <div id="student-briefing" class="student-briefing-screen">
                 <div class="briefing-card glass-card">
@@ -335,6 +383,9 @@
                     <div class="briefing-footer">
                         <button id="btn-start-mission" class="btn btn-primary btn-lg">
                                 <span data-zh="✅ 接受任務，開始探索！" data-en="✅ Accept Mission & Begin">✅ 接受任務，開始探索！</span>
+                        </button>
+                        <button id="btn-back-to-selector" class="btn btn-secondary btn-lg" style="margin-left: 12px;">
+                                <span data-zh="🔙 返回活動選擇" data-en="🔙 Back to Selection">🔙 返回活動選擇</span>
                         </button>
                     </div>
                 </div>
@@ -572,10 +623,10 @@
 
                     <div class="success-actions">
                         <button id="btn-back-to-authoring" class="btn btn-primary">
-                            <span>↩️</span> <span data-zh="返回教師設計工作室" data-en="Back to Teacher Studio">返回教師設計工作室</span>
+                            <span>↩️</span> <span data-zh="返回主角色選擇選單" data-en="Back to Role Selector">返回主角色選擇選單</span>
                         </button>
                         <button id="btn-view-analytics-redirect" class="btn btn-secondary">
-                            <span>📊</span> <span data-zh="檢視學生學習數據分析儀表板" data-en="View Analytics Dashboard">檢視學生學習數據分析儀表板</span>
+                            <span>🧭</span> <span data-zh="選擇其他探究主題" data-en="Select Other Mission">選擇其他探究主題</span>
                         </button>
                     </div>
                 </div>
@@ -884,10 +935,10 @@
     </div>
 
     <!-- Web Application Logic scripts -->
-    <script src="js/ai.js?v=1.0.5"></script>
-    <script src="js/teacher.js?v=1.0.5"></script>
-    <script src="js/student.js?v=1.0.5"></script>
-    <script src="js/analytics.js?v=1.0.5"></script>
-    <script src="js/app.js?v=1.0.5"></script>
+    <script src="js/ai.js?v=1.0.6"></script>
+    <script src="js/teacher.js?v=1.0.6"></script>
+    <script src="js/student.js?v=1.0.6"></script>
+    <script src="js/analytics.js?v=1.0.6"></script>
+    <script src="js/app.js?v=1.0.6"></script>
 </body>
 </html>

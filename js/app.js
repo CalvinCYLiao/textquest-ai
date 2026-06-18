@@ -199,6 +199,269 @@ const DEFAULT_NPCS = {
     }
 };
 
+// Preset activities definition
+window.PRESET_ACTIVITIES = [
+    {
+        id: 'activity_riverbank',
+        title: '消失的綠溪河水 (The Lost Riverwater)',
+        target: '國中八年級 (Grade 8)',
+        time: 30,
+        goals: '學生應能分析水資源短缺的多重原因，並提出基於文本證據的解釋。',
+        product: '請寫一封基於證據的調查報告給村民，解釋綠溪河乾涸的背後主因與解決建議。',
+        sourceText: DEFAULT_SOURCE_TEXT,
+        locations: DEFAULT_LOCATIONS,
+        npcs: DEFAULT_NPCS
+    },
+    {
+        id: 'activity_soil',
+        title: '綠溪庄土壤污染謎團 (The Lost Soil Quality)',
+        target: '國中八年級 (Grade 8)',
+        time: 30,
+        goals: '學生應能探究農地枯萎的化學原因，評估工廠聲明與老張日記的矛盾，並對齊土壤報告數據。',
+        product: '請撰寫一份基於 C-E-R（主張-證據-推理）的土壤污染調查結論，向村委會報告鎘污染的來源。',
+        sourceText: `1. 綠溪村的南側農田近年來部分作物的葉片出現枯黃與畸形，收成量急劇下滑，引起農民的恐慌。\n2. 農地西側鄰近一家成立五年的「鑫源電鍍廠」，該廠主要進行金屬表面處理與電鍍加工。\n3. 鑫源電鍍廠發表公開聲明，堅稱其所有的化學重金屬電鍍液皆經過高溫中和與沉澱處理，絕無重金屬外洩。\n4. 農業改良場的土壤專家在枯黃農作區採集了深層土壤樣本，化驗結果顯示土壤中的重金屬鎘（Cd）含量超標高達五倍。\n5. 鑫源電鍍廠的員工悄悄透露，工廠內部有一口未登記的深井，且廢水池在暴雨天常有溢流現象。\n6. 阿土伯的鄰居老張表示，自從電鍍廠運作後，灌溉用的地下水井水質開始變色，且有刺鼻氣味。\n7. 阿哲的深入調查指出，重金屬鎘無法被一般灌溉水稀釋，會長期殘留在泥土中並被作物的根部吸收。`,
+        locations: [
+            {
+                id: 'loc_field',
+                icon: '🌾',
+                name_zh: '南側農作物區',
+                name_en: 'Crop Field',
+                desc_zh: '枯黃低垂的稻穗與變色泥土，老農夫老張正焦急地看著他的灌溉井。',
+                desc_en: 'Withering crops and discolored soil, where farmer Chang monitors his well.',
+                npcs: ['npc_chang'],
+                clues: []
+            },
+            {
+                id: 'loc_electroplate',
+                icon: '🏭',
+                name_zh: '鑫源電鍍廠',
+                name_en: 'Electroplating Factory',
+                desc_zh: '傳出機器低鳴聲的加工廠，高聳的酸液儲槽上貼有合格安全標章。',
+                desc_en: 'Electroplating facility with hum of machinery and NaOH storage tanks.',
+                npcs: ['npc_lee'],
+                clues: []
+            },
+            {
+                id: 'loc_lab',
+                icon: '🔬',
+                name_zh: '土壤化驗實驗室',
+                name_en: 'Agricultural Lab',
+                desc_zh: '農業改良場的研究室，桌上擺滿了土壤樣本試管與原子吸收光譜儀。',
+                desc_en: 'Research lab equipped with soil sample tubes and spectrometers.',
+                npcs: ['npc_chen'],
+                clues: []
+            }
+        ],
+        npcs: {
+            'npc_chang': {
+                id: 'npc_chang',
+                locationId: 'loc_field',
+                name: '老農夫 老張 (Farmer Chang)',
+                avatar: '👴',
+                roleBadge_zh: '鄰近農民',
+                roleBadge_en: 'Neighboring Farmer',
+                description_zh: '在電鍍廠隔壁種田 of農民，發現近年來土壤質地與水質有巨大變化。',
+                description_en: 'Farmer cultivating crops adjacent to the electroplating factory.',
+                voice_zh: '操著沙啞的嗓音，情緒十分焦急，時常抱怨收成慘淡。',
+                voice_en: 'Speaks with a raspy voice, sounding anxious and complaining about poor harvest.',
+                boundary_zh: '只知道自家的井水在下暴雨後會變色，有刺鼻的金屬味，作物收成慘澹，完全不知道檢測儀器運作方式或工廠財務。',
+                boundary_en: 'Only knows that well water changes color after heavy rains and crops are dying. Knows nothing about factory finances or chemical formulas.',
+                clueName_zh: '地下水井變色與異味紀錄',
+                clueName_en: 'Well Water Discoloration Records',
+                clueText_zh: '老張筆記：自從電鍍廠開始運作後，灌溉用的地下水井在雨天常會變成鐵鏽色，並散發刺鼻的酸味，澆灌後的作物葉片很快就焦枯。',
+                clueText_en: 'Chang\'s records: Since the factory opened, well water turns rusty brown during rains with a pungent acidic smell, causing crops to wither rapidly.',
+                rule_zh: '提問中必須提到「井水」、「變色」、「氣味」或「作物」。',
+                rule_en: 'Must mention "well", "color", "smell", or "crops".',
+                evidences: ['1', '6']
+            },
+            'npc_lee': {
+                id: 'npc_lee',
+                locationId: 'loc_electroplate',
+                name: '李廠長 (Director Lee)',
+                avatar: '👨‍💼',
+                roleBadge_zh: '電鍍廠代表',
+                roleBadge_en: 'Electroplating Factory Director',
+                description_zh: '電鍍廠廠長，身穿工作服，極力維護工廠名譽，堅稱所有流程符合標準。',
+                description_en: 'Factory director defending the operation\'s environmental standards.',
+                voice_zh: '語氣堅定、自信，帶著一點防備，常用「符合國家標準」、「科學合格證書」等詞彙。',
+                voice_en: 'Confident and defensive, repeatedly quoting compliance certifications.',
+                boundary_zh: '堅稱所有的廢水都有合格處理與中和，絕無直接對外排放。規避有關內部未登記井或溢流的問題。',
+                boundary_en: 'Insists waste chemicals are treated and neutralized before disposal. Evades questions about overflow incidents or unregistered dump wells.',
+                clueName_zh: '工廠廢水化學中和合格證書',
+                clueName_en: 'Wastewater Treatment Certificate',
+                clueText_zh: '證書宣稱：工廠內所有金屬表面處理的酸液電鍍廢水，皆經過氫氧化鈉（NaOH）中和及重金屬沉澱，水質檢測完全合格。',
+                clueText_en: 'Certificate details: All acidic plating waste undergoes neutralization with NaOH and heavy metal precipitation, meeting the required environmental test parameters.',
+                rule_zh: '提問中必須包含「合格」、「廢水」、「處理」或「符合標準」。',
+                rule_en: 'Must mention "certificate", "wastewater", "treatment", or "standards".',
+                evidences: ['2', '3']
+            },
+            'npc_chen': {
+                id: 'npc_chen',
+                locationId: 'loc_lab',
+                name: '土壤專家 陳博士 (Dr. Chen)',
+                avatar: '👩‍🔬',
+                roleBadge_zh: '土壤重金屬專家',
+                roleBadge_en: 'Soil Heavy Metal Expert',
+                description_zh: '農業改良場的重金屬研究專家，說話講求數據，客觀冷靜。',
+                description_en: 'Agricultural scientist studying soil heavy metals, highly analytical.',
+                voice_zh: '條理分明、語氣嚴謹，經常引用專業的化學分析數據與土壤深度指標。',
+                voice_en: 'Logical, precise, and quotes chemical symbols and metric scales.',
+                boundary_zh: '掌握了受污染區的土壤化驗數據，但需要學生提供有關電鍍廠原料或老張的井水變色說法，才願意分享化驗細節與鎘（Cd）對作物的吸收效應。',
+                boundary_en: 'Has test data indicating Cadmium (Cd) contamination. Requires student to mention Lee\'s certificate or Chang\'s well water to share report details.',
+                clueName_zh: '農地深層土壤化驗報告',
+                clueName_en: 'Agricultural Soil Laboratory Report',
+                clueText_zh: '報告揭露：受害農區深層土壤中的鎘（Cd）含量超標高達五倍，且發現這種重金屬極難自然稀釋，會長期殘留在泥土中，經根部吸收並累積於作物體內。',
+                clueText_en: 'Lab report: Deep soil Cadmium (Cd) concentration exceeds safety limits by 5x. Cadmium does not dilute easily, remains in soil, and accumulates in crop tissues via root absorption.',
+                rule_zh: '提問中必須提到「老張」、「合格證書」、「土壤」或「鎘」。',
+                rule_en: 'Must mention "Chang", "certificate", "soil", or "cadmium".',
+                evidences: ['4', '7']
+            }
+        }
+    },
+    {
+        id: 'activity_fake_news',
+        title: '社群媒體假新聞判讀 (AI Fake News Literacy)',
+        target: '國中九年級 (Grade 9)',
+        time: 30,
+        goals: '學生應能區分事實與流言，交叉對照疾管署數據與查核中心影像反搜報告，找出機器人帳號轉發意圖。',
+        product: '請完成一份事實查核判定書，駁斥有關綠溪村鎘蔬菜致急性腎衰竭的流言，並分析造謠方的動機與網絡手段。',
+        sourceText: `1. 網路上近日瘋傳一則訊息，聲稱「綠溪村生產的蔬菜含有劇毒鎘，食用會導致急性腎衰竭」，引發大眾恐慌並導致蔬菜滯銷。\n2. 這則消息最早發布於一個名為「綠溪健康小幫手」的匿名社群帳號，並附帶一張病患在醫院搶救的聳動照片。\n3. 衛生福利部疾管署澄清，近期並未接獲任何因食用綠溪村蔬菜而導致急性腎衰竭或重金屬中毒的集體病例。\n4. 查核機構調查發現，該貼文所使用的病患照片，實際上是五年前國外一宗食物中毒事件的舊新聞照片。\n5. 該匿名帳號的註冊 IP 網段被追蹤到來自一家名為「快遞行銷公司」的公關行銷機構。\n6. 當地菜農自救會代表李大姐指出，這則謠言散布的時機，剛好是在競爭對手「洋洋生鮮電商」進行大促銷的前夕。\n7. 資訊工程專家指出，該謠言貼文在短短數小時內獲得了上萬次轉發，呈現典型的社群機器人帳號協同操作特徵。`,
+        locations: [
+            {
+                id: 'loc_clinic',
+                icon: '🏥',
+                name_zh: '地方醫事機構',
+                name_en: 'Local Clinic',
+                desc_zh: '安靜忙碌的診所，林醫師正查看電腦裡的疾管署即時流病通報數據。',
+                desc_en: 'Quiet community clinic where Dr. Lin monitors epidemiology databases.',
+                npcs: ['npc_lin'],
+                clues: []
+            },
+            {
+                id: 'loc_factcheck',
+                icon: '💻',
+                name_zh: '事實查核中心',
+                name_en: 'Fact Check Center',
+                desc_zh: '擺滿螢幕的查核中心辦公室，查核員小敏正在進行反向圖片搜尋與帳號分析。',
+                desc_en: 'Workspace filled with monitors where fact-checker Min traces digital footprints.',
+                npcs: ['npc_min'],
+                clues: []
+            },
+            {
+                id: 'loc_market',
+                icon: '🥬',
+                name_zh: '菜農自救會',
+                name_en: 'Farmer Association',
+                desc_zh: '堆滿滯銷蔬菜的集貨場，自救會李大姐神色憤怒地打著電話抗議。',
+                desc_en: 'Packing station piled with unsold crops, where Sister Lee leads union protests.',
+                npcs: ['npc_sister_lee'],
+                clues: []
+            }
+        ],
+        npcs: {
+            'npc_lin': {
+                id: 'npc_lin',
+                locationId: 'loc_clinic',
+                name: '林醫師 (Dr. Lin)',
+                avatar: '👨‍⚕️',
+                roleBadge_zh: '診所主治醫生',
+                roleBadge_en: 'Clinic Medical Doctor',
+                description_zh: '當地的社區主治醫師，在綠溪村服務多年，掌握第一手的就醫紀錄。',
+                description_en: 'Community general practitioner possessing first-hand medical registers.',
+                voice_zh: '溫和、理性，說話帶有醫學專業的謹慎，以安撫與實證為主。',
+                voice_en: 'Gentle, rational, and cautious with clinical metrics.',
+                boundary_zh: '只知道近期是否有急性腎衰竭病例增加，不知道網路謠言是誰發布的。',
+                boundary_en: 'Only knows hospital admissions and case statistics. Has no information on digital IP logs or source photos.',
+                clueName_zh: '疾管署就醫監測數據庫',
+                clueName_en: 'CDC Medical Admission Registry',
+                clueText_zh: '數據庫揭露：過去三個月綠溪村居民因急性腎衰竭或中毒就醫的件數為零，與往年完全相同，證實網路上所謂的「大量急性腎衰竭病例」完全是虛構的。',
+                clueText_en: 'Registry log: Number of acute kidney failure or poisoning cases in the village over the past 3 months is exactly zero, proving the online claim is fictitious.',
+                rule_zh: '提問中必須提到「就醫」、「病例」、「病例數據」或「中毒」。',
+                rule_en: 'Must mention "admission", "cases", "registry", or "kidney".',
+                evidences: ['1', '3']
+            },
+            'npc_min': {
+                id: 'npc_min',
+                locationId: 'loc_factcheck',
+                name: '事實查核員 小敏 (Fact Checker Min)',
+                avatar: '👩‍💻',
+                roleBadge_zh: '事實查核員',
+                roleBadge_en: 'Fact Checker',
+                description_zh: '專向影像溯源與網路消息查證的專業查核員。',
+                description_en: 'Fact-checking investigator specialized in image reverse searches.',
+                voice_zh: '中立、客觀，強調證據、搜尋紀錄與數位足跡。',
+                voice_en: 'Objective, methodical, constantly citing metadata and search indices.',
+                boundary_zh: '掌握了該謠言配圖的原圖來源，以及轉發貼文的協同帳號特徵。',
+                boundary_en: 'Knows the origin of the photo and bot network analytics. Knows nothing about local market dynamics.',
+                clueName_zh: '網路謠言配圖反向搜尋報告',
+                clueName_en: 'Image Reverse Search Analysis',
+                clueText_zh: '查核報告：該貼文中使用的病患搶救照片，實際上是五年前國外一宗食物中毒事件的舊新聞截圖；且該貼文在短短數小時內被上萬次大量協同機器人帳號轉發。',
+                clueText_en: 'Reverse search details: The patient photo used was stolen from a 5-year-old foreign food poisoning report, and the post was spread via bot nets.',
+                rule_zh: '提問中必須提到「照片」、「貼文」、「圖片」或「轉發」。',
+                rule_en: 'Must mention "photo", "post", "image", or "bot".',
+                evidences: ['2', '4', '7']
+            },
+            'npc_sister_lee': {
+                id: 'npc_sister_lee',
+                locationId: 'loc_market',
+                name: '菜農代表 李大姐 (Sister Lee)',
+                avatar: '👩',
+                roleBadge_zh: '菜農自救會代表',
+                roleBadge_en: 'Farmer Association Representative',
+                description_zh: '菜農自溪班代表，因為蔬菜滯銷而心急如焚，試圖揭發對手的不正當競爭。',
+                description_en: 'Farmer union leader dealing with vegetable sales collapse.',
+                voice_zh: '熱心、激動，說話速度快，帶著濃厚的正義感與憤怒。',
+                voice_en: 'Energetic, emotional, speaking quickly with retail marketing insight.',
+                boundary_zh: '只知道蔬菜滯銷的經濟損失，以及競爭對手洋洋生鮮的促銷活動，不知道技術上的IP追蹤或疾管署就醫數據。',
+                boundary_en: 'Only knows financial losses, crop prices, and rival marketing schedules. Knows nothing about IP address mapping.',
+                clueName_zh: '洋洋電商促銷與行銷時程表',
+                clueName_en: 'Rival E-Commerce Promotion Schedule',
+                clueText_zh: '調查時程表：謠言大肆散播的時間，剛好是在競爭對手「洋洋生鮮電商」主打「無毒安全蔬菜大促銷」的前一天，且該貼文的發布IP網段指向了一家受雇的行銷公關公司。',
+                clueText_en: 'Schedule correlation: The kidney poison rumor broke exactly 1 day before rival "Yang-Yang Fresh" launched their safety-brand promotion, traced to a marketing firm\'s IP.',
+                rule_zh: '提問中必須提到「洋洋」、「促銷」、「對手」或「時間點」。',
+                rule_en: 'Must mention "Yang-Yang", "promotion", "rival", or "timing".',
+                evidences: ['5', '6']
+            }
+        }
+    }
+];
+
+window.loadActivityIntoSession = function(activityData) {
+    // Deep copy the activityData
+    TextQuest.activity = JSON.parse(JSON.stringify(activityData));
+    TextQuest.activity.sentences = parseSourceTextToSentences(TextQuest.activity.sourceText);
+    
+    // Clear and build clues dynamically
+    TextQuest.activity.clues = {};
+    Object.values(TextQuest.activity.npcs).forEach(npc => {
+        if (npc.clueName_zh) {
+            const clueId = 'clue_' + npc.id.split('_')[1];
+            TextQuest.activity.clues[clueId] = {
+                id: clueId,
+                npcId: npc.id,
+                name_zh: npc.clueName_zh,
+                name_en: npc.clueName_en,
+                text_zh: npc.clueText_zh,
+                text_en: npc.clueText_en,
+                rule_zh: npc.rule_zh,
+                rule_en: npc.rule_en,
+                evidences: npc.evidences
+            };
+            npc.clueId = clueId;
+        }
+    });
+    
+    // Update fields if elements exist
+    const sourceTextEl = document.getElementById('input-source-text');
+    if (sourceTextEl) {
+        sourceTextEl.value = TextQuest.activity.sourceText;
+    }
+};
+
+window.saveCustomActivityToStorage = function() {
+    localStorage.setItem('tq_custom_activity', JSON.stringify(TextQuest.activity));
+};
+
 // Global Translation Strings
 const TRANSLATIONS = {
     zh: {
@@ -313,19 +576,47 @@ function switchMode(mode) {
         panel.classList.remove('active');
     });
     
-    if (mode === 'teacher') {
+    const modeNav = document.getElementById('global-mode-nav');
+    const btnExitRole = document.getElementById('btn-exit-role');
+    
+    if (mode === 'gateway') {
+        if (modeNav) modeNav.classList.add('hidden');
+        if (btnExitRole) btnExitRole.classList.add('hidden');
+        const view = document.getElementById('view-gateway');
+        if (view) {
+            view.classList.remove('hidden');
+            view.classList.add('active');
+        }
+    } else if (mode === 'teacher') {
+        if (modeNav) {
+            modeNav.classList.remove('hidden');
+            // Hide student tab in teacher mode
+            document.getElementById('btn-mode-student').classList.add('hidden');
+            document.getElementById('btn-mode-teacher').classList.remove('hidden');
+            document.getElementById('btn-mode-analytics').classList.remove('hidden');
+        }
+        if (btnExitRole) btnExitRole.classList.remove('hidden');
         document.getElementById('btn-mode-teacher').classList.add('active');
         const view = document.getElementById('view-teacher');
         view.classList.remove('hidden');
         view.classList.add('active');
         window.TeacherModule.init();
     } else if (mode === 'student') {
-        document.getElementById('btn-mode-student').classList.add('active');
+        // Completely hide nav switcher for students
+        if (modeNav) modeNav.classList.add('hidden');
+        if (btnExitRole) btnExitRole.classList.remove('hidden');
         const view = document.getElementById('view-student');
         view.classList.remove('hidden');
         view.classList.add('active');
         window.StudentModule.init();
     } else if (mode === 'analytics') {
+        if (modeNav) {
+            modeNav.classList.remove('hidden');
+            document.getElementById('btn-mode-student').classList.add('hidden');
+            document.getElementById('btn-mode-teacher').classList.remove('hidden');
+            document.getElementById('btn-mode-analytics').classList.remove('hidden');
+        }
+        if (btnExitRole) btnExitRole.classList.remove('hidden');
         document.getElementById('btn-mode-analytics').classList.add('active');
         const view = document.getElementById('view-analytics');
         view.classList.remove('hidden');
@@ -333,33 +624,12 @@ function switchMode(mode) {
         window.AnalyticsModule.init();
     }
 }
+window.switchMode = switchMode;
 
 // Global Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize Activity Model with Default values
-    TextQuest.activity.sourceText = DEFAULT_SOURCE_TEXT;
-    TextQuest.activity.sentences = parseSourceTextToSentences(DEFAULT_SOURCE_TEXT);
-    TextQuest.activity.locations = JSON.parse(JSON.stringify(DEFAULT_LOCATIONS));
-    TextQuest.activity.npcs = JSON.parse(JSON.stringify(DEFAULT_NPCS));
-    
-    // Create clue map dynamically from NPC clues
-    Object.values(TextQuest.activity.npcs).forEach(npc => {
-        if (npc.clueName_zh) {
-            const clueId = 'clue_' + npc.id.split('_')[1];
-            TextQuest.activity.clues[clueId] = {
-                id: clueId,
-                npcId: npc.id,
-                name_zh: npc.clueName_zh,
-                name_en: npc.clueName_en,
-                text_zh: npc.clueText_zh,
-                text_en: npc.clueText_en,
-                rule_zh: npc.rule_zh,
-                rule_en: npc.rule_en,
-                evidences: npc.evidences
-            };
-            npc.clueId = clueId;
-        }
-    });
+    // 1. Initialize Activity Model with Default values (use the first preset as default)
+    loadActivityIntoSession(PRESET_ACTIVITIES[0]);
     
     // Populate form fields
     document.getElementById('input-source-text').value = TextQuest.activity.sourceText;
@@ -374,6 +644,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-mode-student').addEventListener('click', () => switchMode('student'));
     document.getElementById('btn-mode-analytics').addEventListener('click', () => switchMode('analytics'));
     
+    // Exit role gateway button
+    const btnExit = document.getElementById('btn-exit-role');
+    if (btnExit) {
+        btnExit.addEventListener('click', () => switchMode('gateway'));
+    }
+    
+    // Gateway Selector triggers
+    const selectTeacherGateway = document.getElementById('btn-gateway-teacher');
+    if (selectTeacherGateway) {
+        selectTeacherGateway.addEventListener('click', () => switchMode('teacher'));
+    }
+    const selectStudentGateway = document.getElementById('btn-gateway-student');
+    if (selectStudentGateway) {
+        selectStudentGateway.addEventListener('click', () => {
+            // Save teacher's current session state to local storage before student starts
+            saveCustomActivityToStorage();
+            switchMode('student');
+        });
+    }
+
     // Settings modal triggers
     const settingsModal = document.getElementById('modal-settings');
     document.getElementById('btn-settings').addEventListener('click', () => {
@@ -423,8 +713,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     });
 
-    // 3. Initialize Teacher Studio by default
-    window.TeacherModule.init();
+    // 3. Initialize with Gateway Mode on startup
+    switchMode('gateway');
 });
 
 // Utility to escape HTML

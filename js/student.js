@@ -5,14 +5,92 @@
 
 window.StudentModule = {
     init() {
-        this.resetState();
         this.bindEvents();
-        this.renderBriefing();
+        this.renderActivitySelector();
         
-        // Ensure student view starts with briefing overlay
-        document.getElementById('student-briefing').classList.remove('hidden');
+        // Start by showing selector, hiding briefing & workspace
+        document.getElementById('student-activity-selector').classList.remove('hidden');
+        document.getElementById('student-briefing').classList.add('hidden');
         document.getElementById('student-workspace').classList.add('hidden');
         document.getElementById('student-success-sheet').classList.add('hidden');
+    },
+
+    renderActivitySelector() {
+        const grid = document.getElementById('activity-selector-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        
+        const isZh = TextQuest.lang === 'zh';
+        
+        // 1. Gather all activities: Presets + Custom
+        const activities = [];
+        
+        // Preset activities
+        window.PRESET_ACTIVITIES.forEach(act => {
+            activities.push({
+                ...act,
+                type: 'preset'
+            });
+        });
+        
+        // Check for custom activity in localStorage
+        const customRaw = localStorage.getItem('tq_custom_activity');
+        if (customRaw) {
+            try {
+                const customAct = JSON.parse(customRaw);
+                activities.push({
+                    ...customAct,
+                    id: 'activity_custom',
+                    title: customAct.title || (isZh ? '教師自訂探究活動' : 'Custom Designed Activity'),
+                    type: 'custom'
+                });
+            } catch (e) {
+                console.error("Error parsing custom activity:", e);
+            }
+        }
+        
+        // 2. Render each activity card
+        activities.forEach(act => {
+            const card = document.createElement('div');
+            card.className = `activity-item-card ${act.type === 'custom' ? 'custom-card' : ''}`;
+            
+            const badgeLabel = act.type === 'custom' 
+                ? (isZh ? '🛠️ 教師自訂設計' : '🛠️ Custom Design') 
+                : (isZh ? '⚙️ 系統預設' : '⚙️ Preset');
+            
+            card.innerHTML = `
+                <div class="activity-badge ${act.type}">${badgeLabel}</div>
+                <div class="title">${escapeHtml(act.title)}</div>
+                <div class="goals-summary">
+                    <strong>${isZh ? '🎯 目標' : '🎯 Goal'}:</strong> ${escapeHtml(act.goals)}
+                </div>
+                <div class="meta-info">
+                    <span>👥 ${escapeHtml(act.target)}</span>
+                    <span>⏱️ ${act.time} ${isZh ? '分鐘' : 'mins'}</span>
+                </div>
+            `;
+            
+            card.onclick = () => {
+                this.selectActivity(act);
+            };
+            
+            grid.appendChild(card);
+        });
+    },
+
+    selectActivity(act) {
+        // Load the chosen activity into the active session
+        window.loadActivityIntoSession(act);
+        
+        // Reset student gameplay state for the new activity
+        this.resetState();
+        
+        // Render briefing fields
+        this.renderBriefing();
+        
+        // Transition to briefing screen
+        document.getElementById('student-activity-selector').classList.add('hidden');
+        document.getElementById('student-briefing').classList.remove('hidden');
     },
 
     resetState() {
@@ -58,6 +136,16 @@ window.StudentModule = {
                 alert((TextQuest.lang === 'zh' ? '啟動探究任務失敗，錯誤資訊：' : 'Failed to start mission: ') + error.message);
             }
         };
+
+        // Back to Selector Button
+        const backToSelectorBtn = document.getElementById('btn-back-to-selector');
+        if (backToSelectorBtn) {
+            backToSelectorBtn.onclick = () => {
+                document.getElementById('student-briefing').classList.add('hidden');
+                document.getElementById('student-activity-selector').classList.remove('hidden');
+                this.renderActivitySelector();
+            };
+        }
 
         // Leave Location Button
         document.getElementById('btn-leave-location').onclick = () => {
@@ -140,12 +228,14 @@ window.StudentModule = {
             this.saveEvidenceLinking();
         };
 
-        // Back to teacher studio redirects
+        // Back to teacher studio redirects (now Gateway / Selector)
         document.getElementById('btn-back-to-authoring').onclick = () => {
-            window.switchMode('teacher');
+            window.switchMode('gateway');
         };
         document.getElementById('btn-view-analytics-redirect').onclick = () => {
-            window.switchMode('analytics');
+            document.getElementById('student-success-sheet').classList.add('hidden');
+            document.getElementById('student-activity-selector').classList.remove('hidden');
+            this.renderActivitySelector();
         };
     },
 
