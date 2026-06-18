@@ -1541,45 +1541,6 @@ p {
     color: #34d399;
 }
 
-/* Card Mode Styling */
-.source-text-reader.card-mode {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-.source-text-reader.card-mode .source-text-sentence {
-    display: block;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 14px 18px;
-    margin-bottom: 0;
-    box-shadow: var(--shadow-sm);
-    cursor: pointer;
-    transition: all var(--transition-normal);
-}
-.source-text-reader.card-mode .source-text-sentence:hover {
-    transform: translateY(-2px);
-    border-color: var(--border-hover);
-    background: var(--bg-tertiary);
-    box-shadow: var(--shadow-md);
-}
-.source-text-reader.card-mode .source-text-sentence.selected {
-    border-color: var(--accent-primary);
-    background: rgba(16, 185, 129, 0.08);
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
-    color: var(--text-main); /* Keep normal text color for readability, don't color green */
-}
-.source-text-reader.card-mode .source-text-sentence.linked {
-    border-color: var(--border-color);
-    border-left: 4px solid var(--accent-warning);
-    background: rgba(245, 158, 11, 0.04);
-}
-.source-text-reader.card-mode .source-text-sentence.linked.selected {
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
-}
-
 /* Source Text Matching Illustration Image Container */
 .source-text-image-container {
     margin-bottom: 12px;
